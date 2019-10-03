@@ -5,7 +5,8 @@
 
 // Flip the image vertically.
 //
-// Used for converting between the opengl texture coordinate system and the QImage coordinate system
+// Used for converting between the opengl texture coordinate system and the
+// QImage coordinate system
 void flip_image(QImage& image);
 
-#endif // CORELIBRARY_IMAGE_HPP_
+#endif  // CORELIBRARY_IMAGE_HPP_

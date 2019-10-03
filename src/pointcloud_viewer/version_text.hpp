@@ -5,4 +5,4 @@
 
 QString version_text();
 
-#endif // POINTCLOUDVIEWER_VERSIONTEXT_HPP
+#endif  // POINTCLOUDVIEWER_VERSIONTEXT_HPP

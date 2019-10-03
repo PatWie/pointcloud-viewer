@@ -17,11 +17,14 @@ vec3(0,1,0) and vec3(0,0,1))
 */
 
 glm::vec3 find_best_perpendicular(const glm::vec3& vector);
-glm::vec3 find_best_perpendicular(const glm::vec3& vector, const glm::vec3& normal);
-template<typename... args>
-glm::vec3 find_best_perpendicular(const glm::vec3& vector, const glm::vec3& normal_candidate_1 , const glm::vec3& normal_candidate_2, const args&... other_candidates);
+glm::vec3 find_best_perpendicular(const glm::vec3& vector,
+                                  const glm::vec3& normal);
+template <typename... args>
+glm::vec3 find_best_perpendicular(const glm::vec3& vector,
+                                  const glm::vec3& normal_candidate_1,
+                                  const glm::vec3& normal_candidate_2,
+                                  const args&... other_candidates);
 
 #include <geometry/perpendicular.inl>
 
-#endif // GEOMETRY_PERPENDICULAR_HPP_
-
+#endif  // GEOMETRY_PERPENDICULAR_HPP_

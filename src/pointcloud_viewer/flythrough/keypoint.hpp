@@ -3,9 +3,8 @@
 
 #include <geometry/frame.hpp>
 
-struct keypoint_t
-{
+struct keypoint_t {
   frame_t frame;
 };
 
-#endif // POINTCLOUDVIEWER_FLYTHROUGH_KEYPOINT_HPP_
+#endif  // POINTCLOUDVIEWER_FLYTHROUGH_KEYPOINT_HPP_

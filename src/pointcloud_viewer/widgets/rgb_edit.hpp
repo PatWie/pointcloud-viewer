@@ -5,10 +5,9 @@
 
 #include <glm/glm.hpp>
 
-class RgbEdit : public QLineEdit
-{
+class RgbEdit : public QLineEdit {
   Q_OBJECT
-public:
+ public:
   RgbEdit();
 
   int red() const;
@@ -17,11 +16,11 @@ public:
 
   glm::u8vec3 rgb() const;
 
-signals:
+ signals:
   void colorChanged(glm::u8vec3 rgb);
 
-private slots:
+ private slots:
   void handle_changed();
 };
 
-#endif // POINTCLOUDVIEWER_WIDGETS_RGBEDIT_HPP_
+#endif  // POINTCLOUDVIEWER_WIDGETS_RGBEDIT_HPP_

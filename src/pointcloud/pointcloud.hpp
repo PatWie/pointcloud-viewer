@@ -1,46 +1,41 @@
 #ifndef POINTCLOUDVIEWER_POINTCLOUD_HPP_
 #define POINTCLOUDVIEWER_POINTCLOUD_HPP_
 
+#include <geometry/aabb.hpp>
 #include <pointcloud/buffer.hpp>
 #include <pointcloud/kdtree_index.hpp>
-#include <geometry/aabb.hpp>
 
-#include <QVector>
+#include <QSet>
 #include <QString>
 #include <QVariant>
-#include <QSet>
+#include <QVector>
 
 /*
 Stores the whole point cloud consisting out of the
 - coordinate_color -- coordinates and colors
 - user_data -- all property data
 */
-class PointCloud final
-{
-public:
-  enum class column_t
-  {
+class PointCloud final {
+ public:
+  enum class column_t {
     COORDINATES,
     COLOR,
     USER_DATA,
   };
   typedef column_t COLUMN;
 
-  struct vertex_t
-  {
+  struct vertex_t {
     glm::vec3 coordinate;
     glm::u8vec3 color;
     padding<uint8_t> _padding = padding<uint8_t>();
   };
 
-  struct UserData
-  {
+  struct UserData {
     QVector<QString> names;
     QVector<QVariant> values;
   };
 
-  struct Shader
-  {
+  struct Shader {
     QSet<QString> used_properties;
     QString coordinate_expression;
     QString color_expression;
@@ -80,7 +75,10 @@ public:
   void clear();
   void resize(size_t num_points);
 
-  void set_user_data_format(size_t user_data_stride, QVector<QString> user_data_names, QVector<size_t> user_data_offset, QVector<data_type::base_type_t> user_data_types);
+  void set_user_data_format(size_t user_data_stride,
+                            QVector<QString> user_data_names,
+                            QVector<size_t> user_data_offset,
+                            QVector<data_type::base_type_t> user_data_types);
 
   void build_kd_tree(std::function<bool(size_t, size_t)> feedback);
   bool can_build_kdtree() const;
@@ -91,4 +89,4 @@ QDebug operator<<(QDebug debug, const PointCloud::UserData& userData);
 
 Q_DECLARE_METATYPE(PointCloud::Shader);
 
-#endif // POINTCLOUDVIEWER_POINTCLOUD_HPP_
+#endif  // POINTCLOUDVIEWER_POINTCLOUD_HPP_

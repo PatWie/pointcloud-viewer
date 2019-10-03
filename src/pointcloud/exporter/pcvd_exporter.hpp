@@ -3,17 +3,16 @@
 
 #include <pointcloud/exporter/abstract_exporter.hpp>
 
-class PcvdExporter final : public AbstractPointCloudExporter
-{
-public:
+class PcvdExporter final : public AbstractPointCloudExporter {
+ public:
   PcvdExporter(const std::string& output_file, const PointCloud& pointcloud);
 
   bool save_kd_tree = true;
   bool save_vertex_data = true;
   bool save_shader = true;
 
-protected:
+ protected:
   bool export_implementation() override;
 };
 
-#endif // POINTCLOUD_WORKERS_EXPORTER_PCVD_HPP_
+#endif  // POINTCLOUD_WORKERS_EXPORTER_PCVD_HPP_

@@ -1,16 +1,15 @@
 #ifndef POINTCLOUDVIEWER_FLYTHROUGH_FILE_HPP_
 #define POINTCLOUDVIEWER_FLYTHROUGH_FILE_HPP_
 
+#include <QVector>
 #include <core_library/types.hpp>
 #include <geometry/frame.hpp>
-#include <QVector>
 
-class FlythroughFile
-{
-public:
-  struct header_t
-  {
-    constexpr static const uint64_t EXPECTED_MAGIC_NUMBER = 0x46506d6143796c46; // "FlyCamPF" FLYthrough CAMera Path File
+class FlythroughFile {
+ public:
+  struct header_t {
+    constexpr static const uint64_t EXPECTED_MAGIC_NUMBER =
+        0x46506d6143796c46;  // "FlyCamPF" FLYthrough CAMera Path File
 
     uint64_t magic_number = EXPECTED_MAGIC_NUMBER;
     uint32_t header_length = sizeof(header_t);
@@ -28,4 +27,4 @@ public:
   void export_to_file(QString filepath);
 };
 
-#endif // POINTCLOUDVIEWER_FLYTHROUGH_FILE_HPP_
+#endif  // POINTCLOUDVIEWER_FLYTHROUGH_FILE_HPP_

@@ -1,18 +1,16 @@
+#include <core_library/color_palette.hpp>
 #include <pointcloud_viewer/viewport.hpp>
 #include <pointcloud_viewer/visualizations.hpp>
-#include <core_library/color_palette.hpp>
 
-#include <renderer/gl450/uniforms.hpp>
 #include <renderer/gl450/point_remapper.hpp>
+#include <renderer/gl450/uniforms.hpp>
 
 #include <QElapsedTimer>
-#include <QSettings>
-#include <QPainter>
 #include <QMessageBox>
+#include <QPainter>
+#include <QSettings>
 
-Viewport::Viewport()
-  : navigation(this)
-{
+Viewport::Viewport() : navigation(this) {
   QSurfaceFormat format;
 
   format.setVersion(4, 5);
@@ -21,18 +19,20 @@ Viewport::Viewport()
   format.setRenderableType(QSurfaceFormat::OpenGL);
   format.setDepthBufferSize(24);
 
-  m_backgroundColor = glm::clamp(int(glm::round(glm::vec3(color_palette::grey[0]).g * 255.f)), 0, 255);
+  m_backgroundColor = glm::clamp(
+      int(glm::round(glm::vec3(color_palette::grey[0]).g * 255.f)), 0, 255);
 
   setFormat(format);
   setMinimumSize(640, 480);
 
   QSettings settings;
   m_pointSize = settings.value("Rendering/pointSize", 1.f).value<int>();
-  m_backgroundColor = settings.value("Rendering/backgroundColor", m_backgroundColor).value<int>();
+  m_backgroundColor =
+      settings.value("Rendering/backgroundColor", m_backgroundColor)
+          .value<int>();
 }
 
-Viewport::~Viewport()
-{
+Viewport::~Viewport() {
   delete global_uniform;
   delete point_renderer;
   delete _visualization;
@@ -42,19 +42,14 @@ Viewport::~Viewport()
   settings.setValue("Rendering/backgroundColor", m_backgroundColor);
 }
 
-aabb_t Viewport::aabb() const
-{
-  return _aabb;
-}
+aabb_t Viewport::aabb() const { return _aabb; }
 
-void Viewport::set_camera_frame(const frame_t& frame)
-{
+void Viewport::set_camera_frame(const frame_t& frame) {
   navigation.camera.frame = frame;
   update();
 }
 
-void Viewport::unload_all_point_clouds()
-{
+void Viewport::unload_all_point_clouds() {
   point_renderer->clear_buffer();
   _aabb = aabb_t::invalid();
   this->point_cloud.clear();
@@ -62,37 +57,37 @@ void Viewport::unload_all_point_clouds()
   this->update();
 }
 
-void Viewport::load_point_cloud(QSharedPointer<PointCloud> point_cloud)
-{
+void Viewport::load_point_cloud(QSharedPointer<PointCloud> point_cloud) {
   this->point_cloud = point_cloud;
 
   _aabb = point_cloud->aabb;
 
   this->makeCurrent();
-  point_renderer->load_points(point_cloud->coordinate_color.data(), GLsizei(point_cloud->num_points));
+  point_renderer->load_points(point_cloud->coordinate_color.data(),
+                              GLsizei(point_cloud->num_points));
   this->doneCurrent();
 
   this->update();
 }
 
-bool Viewport::reapply_point_shader(bool coordinates_were_changed)
-{
+bool Viewport::reapply_point_shader(bool coordinates_were_changed) {
   this->makeCurrent();
 
-  if(!renderer::gl450::remap_points(point_cloud.data()))
-  {
+  if (!renderer::gl450::remap_points(point_cloud.data())) {
     this->doneCurrent();
-    QMessageBox::warning(this, "Shader error", "Could not apply the point shader.\nPlease take a look at the Standard Output");
+    QMessageBox::warning(this, "Shader error",
+                         "Could not apply the point shader.\nPlease take a "
+                         "look at the Standard Output");
     return false;
   }
 
-  point_renderer->load_points(point_cloud->coordinate_color.data(), GLsizei(point_cloud->num_points));
+  point_renderer->load_points(point_cloud->coordinate_color.data(),
+                              GLsizei(point_cloud->num_points));
 
-  if(coordinates_were_changed)
-  {
+  if (coordinates_were_changed) {
     aabb_t aabb = aabb_t::invalid();
 
-    for(const PointCloud::vertex_t& vertex : *point_cloud)
+    for (const PointCloud::vertex_t& vertex : *point_cloud)
       aabb |= vertex.coordinate;
 
     point_cloud->aabb = aabb;
@@ -106,10 +101,11 @@ bool Viewport::reapply_point_shader(bool coordinates_were_changed)
   return true;
 }
 
-void Viewport::render_points(frame_t camera_frame, float aspect, std::function<void ()> additional_rendering) const
-{
-  GL_CALL(glClearColor, m_backgroundColor/255.f, m_backgroundColor/255.f, m_backgroundColor/255.f, 1.f);
-  GL_CALL(glClear, GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+void Viewport::render_points(frame_t camera_frame, float aspect,
+                             std::function<void()> additional_rendering) const {
+  GL_CALL(glClearColor, m_backgroundColor / 255.f, m_backgroundColor / 255.f,
+          m_backgroundColor / 255.f, 1.f);
+  GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL_CALL(glDepthFunc, GL_LEQUAL);
   GL_CALL(glEnable, GL_DEPTH_TEST);
   GL_CALL(glPointSize, m_pointSize);
@@ -130,20 +126,12 @@ void Viewport::render_points(frame_t camera_frame, float aspect, std::function<v
   global_uniform->unbind();
 }
 
-int Viewport::backgroundColor() const
-{
-  return m_backgroundColor;
-}
+int Viewport::backgroundColor() const { return m_backgroundColor; }
 
-int Viewport::pointSize() const
-{
-  return m_pointSize;
-}
+int Viewport::pointSize() const { return m_pointSize; }
 
-void Viewport::setBackgroundColor(int backgroundColor)
-{
-  if(m_backgroundColor == backgroundColor)
-    return;
+void Viewport::setBackgroundColor(int backgroundColor) {
+  if (m_backgroundColor == backgroundColor) return;
 
   m_backgroundColor = backgroundColor;
   emit backgroundColorChanged(m_backgroundColor);
@@ -151,10 +139,8 @@ void Viewport::setBackgroundColor(int backgroundColor)
   update();
 }
 
-void Viewport::setPointSize(int pointSize)
-{
-  if(m_pointSize == pointSize)
-    return;
+void Viewport::setPointSize(int pointSize) {
+  if (m_pointSize == pointSize) return;
 
   pointSize = glm::clamp<int>(pointSize, 1, 16);
 
@@ -164,8 +150,7 @@ void Viewport::setPointSize(int pointSize)
 }
 
 // Called by Qt right after the OpenGL context was created
-void Viewport::initializeGL()
-{
+void Viewport::initializeGL() {
   gladLoadGL();
 
   point_renderer = new PointRenderer();
@@ -180,68 +165,55 @@ void Viewport::initializeGL()
 }
 
 // Called by Qt everytime the opengl window was resized
-void Viewport::resizeGL(int w, int h)
-{
+void Viewport::resizeGL(int w, int h) {
   navigation.camera.aspect = float(w) / float(h);
 }
 
 // Called by Qt everytime the opengl window needs to be repainted
-void Viewport::paintGL()
-{
+void Viewport::paintGL() {
   QElapsedTimer timer;
   timer.start();
 
-  if(enable_preview)
-  {
-    render_points(navigation.camera.frame, navigation.camera.aspect, [this](){
-      visualization().render();
-    });
+  if (enable_preview) {
+    render_points(navigation.camera.frame, navigation.camera.aspect,
+                  [this]() { visualization().render(); });
   }
 
   frame_rendered(timer.nsecsElapsed() * 1.e-9);
 }
 
-void Viewport::paintEvent(QPaintEvent* event)
-{
+void Viewport::paintEvent(QPaintEvent* event) {
   QOpenGLWidget::paintEvent(event);
 
   {
     QPainter painter(this);
-    visualization().draw_overlay(painter, navigation.camera, pointSize(), glm::ivec2(this->width(), this->height()));
+    visualization().draw_overlay(painter, navigation.camera, pointSize(),
+                                 glm::ivec2(this->width(), this->height()));
   }
 }
 
-void Viewport::wheelEvent(QWheelEvent* event)
-{
-  navigation.wheelEvent(event);
-}
+void Viewport::wheelEvent(QWheelEvent* event) { navigation.wheelEvent(event); }
 
-void Viewport::mouseMoveEvent(QMouseEvent* event)
-{
+void Viewport::mouseMoveEvent(QMouseEvent* event) {
   navigation.mouseMoveEvent(event);
 }
 
-void Viewport::mousePressEvent(QMouseEvent* event)
-{
+void Viewport::mousePressEvent(QMouseEvent* event) {
   navigation.mousePressEvent(event);
 }
 
-void Viewport::mouseReleaseEvent(QMouseEvent* event)
-{
+void Viewport::mouseReleaseEvent(QMouseEvent* event) {
   navigation.mouseReleaseEvent(event);
 }
 
-void Viewport::mouseDoubleClickEvent(QMouseEvent* event)
-{
+void Viewport::mouseDoubleClickEvent(QMouseEvent* event) {
   navigation.mouseDoubleClickEvent(event);
 }
 
-void Viewport::keyPressEvent(QKeyEvent* event)
-{
+void Viewport::keyPressEvent(QKeyEvent* event) {
   navigation.keyPressEvent(event);
 }
 
-void Viewport::keyReleaseEvent(QKeyEvent* event)
-{
+void Viewport::keyReleaseEvent(QKeyEvent* event) {
   navigation.keyReleaseEvent(event);
 }

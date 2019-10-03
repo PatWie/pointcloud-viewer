@@ -4,32 +4,33 @@
 #include <pointcloud/pointcloud.hpp>
 
 #include <QDialogButtonBox>
-#include <QSharedPointer>
-#include <QWidget>
 #include <QLabel>
-#include <QToolButton>
 #include <QLineEdit>
+#include <QSharedPointer>
+#include <QToolButton>
+#include <QWidget>
 
 #include <memory>
 
-namespace QtNodes
-{
+namespace QtNodes {
 
 struct DataModelRegistry;
 struct FlowScene;
 struct FlowView;
 
-} // namespace QtNodes
+}  // namespace QtNodes
 
 class MainWindow;
 
-class PointShaderEditor : public QWidget
-{
+class PointShaderEditor : public QWidget {
   Q_OBJECT
-  Q_PROPERTY(bool isPointCloudLoaded READ isPointCloudLoaded NOTIFY isPointCloudLoadedChanged)
-  Q_PROPERTY(bool isReadOnly READ isReadOnly WRITE setIsReadOnly NOTIFY isReadOnlyChanged)
-  Q_PROPERTY(QString shaderName READ shaderName WRITE setShaderName NOTIFY shaderNameChanged)
-public:
+  Q_PROPERTY(bool isPointCloudLoaded READ isPointCloudLoaded NOTIFY
+                 isPointCloudLoadedChanged)
+  Q_PROPERTY(bool isReadOnly READ isReadOnly WRITE setIsReadOnly NOTIFY
+                 isReadOnlyChanged)
+  Q_PROPERTY(QString shaderName READ shaderName WRITE setShaderName NOTIFY
+                 shaderNameChanged)
+ public:
   PointShaderEditor(MainWindow* mainWindow);
   ~PointShaderEditor();
 
@@ -47,13 +48,13 @@ public:
 
   QString shaderName() const;
 
-public slots:
+ public slots:
   void setIsReadOnly(bool isReadOnly);
   void setShaderName(QString shaderName);
 
   void applyShader();
 
-signals:
+ signals:
   void isPointCloudLoadedChanged(bool isPointCloudLoaded);
 
   void isReadOnlyChanged(bool isReadOnly);
@@ -62,13 +63,14 @@ signals:
 
   void shaderNameChanged(QString shaderName);
 
-private:
+ private:
   friend QSet<QString> find_used_properties(const PointCloud* pointcloud);
-  friend PointCloud::Shader generate_code_from_shader(const PointCloud* pointcloud);
+  friend PointCloud::Shader generate_code_from_shader(
+      const PointCloud* pointcloud);
 
   MainWindow& mainWindow;
 
-  QSharedPointer<PointCloud>  _pointCloud;
+  QSharedPointer<PointCloud> _pointCloud;
   QtNodes::FlowScene* flowScene = nullptr;
 
   QtNodes::FlowView* flowView = nullptr;
@@ -80,13 +82,14 @@ private:
   QLabel* readonlyNotificationBar;
   QLineEdit* shaderName_Editor;
 
-  static std::shared_ptr<QtNodes::DataModelRegistry> qt_nodes_model_registry(const PointCloud* pointcloud);
+  static std::shared_ptr<QtNodes::DataModelRegistry> qt_nodes_model_registry(
+      const PointCloud* pointcloud);
 
   bool m_isReadOnly = false;
 
   QString m_shaderName;
 
-private slots:
+ private slots:
   void closeEditor();
   void appendShader();
   void importShader();
@@ -96,7 +99,7 @@ private slots:
 QSet<QString> find_used_properties(const PointCloud* pointcloud);
 QSet<QString> find_used_properties(QtNodes::FlowScene* flowScene);
 PointCloud::Shader generate_code_from_shader(const PointCloud* pointcloud);
-PointCloud::Shader generate_code_from_shader(QtNodes::FlowScene* flowScene, PointCloud::Shader shader);
+PointCloud::Shader generate_code_from_shader(QtNodes::FlowScene* flowScene,
+                                             PointCloud::Shader shader);
 
-
-#endif // POINT_SHADER_HPP
+#endif  // POINT_SHADER_HPP

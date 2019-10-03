@@ -1,7 +1,6 @@
 #include <pointcloud_viewer/widgets/rgb_edit.hpp>
 
-RgbEdit::RgbEdit()
-{
+RgbEdit::RgbEdit() {
   setInputMask("\\#HHHHHH");
   setText("#000000");
   setMaxLength(7);
@@ -9,27 +8,16 @@ RgbEdit::RgbEdit()
   connect(this, &RgbEdit::textEdited, this, &RgbEdit::handle_changed);
 }
 
-int RgbEdit::red() const
-{
-  return rgb().r;
-}
+int RgbEdit::red() const { return rgb().r; }
 
-int RgbEdit::green() const
-{
-  return rgb().g;
-}
+int RgbEdit::green() const { return rgb().g; }
 
-int RgbEdit::blue() const
-{
-  return rgb().b;
-}
+int RgbEdit::blue() const { return rgb().b; }
 
-glm::u8vec3 RgbEdit::rgb() const
-{
+glm::u8vec3 RgbEdit::rgb() const {
   QString text = this->text();
 
-  if(text.length() != 7)
-    text += "0000000";
+  if (text.length() != 7) text += "0000000";
 
   glm::bvec3 ok;
   glm::u8vec3 rgb;
@@ -41,7 +29,4 @@ glm::u8vec3 RgbEdit::rgb() const
   return rgb;
 }
 
-void RgbEdit::handle_changed()
-{
-  colorChanged(rgb());
-}
+void RgbEdit::handle_changed() { colorChanged(rgb()); }

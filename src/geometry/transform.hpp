@@ -13,5 +13,4 @@ glm::vec3 transform_direction(const glm::mat4x3& t, const glm::vec3& relative);
 
 #include <geometry/transform.inl>
 
-#endif // GEOMETRY_TRANSFORM_HPP_
-
+#endif  // GEOMETRY_TRANSFORM_HPP_

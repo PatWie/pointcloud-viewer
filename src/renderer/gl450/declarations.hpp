@@ -15,7 +15,7 @@ class DebugMeshRenderer;
 class GlobalUniform;
 class PointRenderer;
 
-} //namespace gl450
-} //namespace renderer
+}  // namespace gl450
+}  // namespace renderer
 
-#endif // RENDERSYSTEM_GL450_DECLARATIONS_HPP_
+#endif  // RENDERSYSTEM_GL450_DECLARATIONS_HPP_

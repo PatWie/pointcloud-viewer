@@ -9,12 +9,10 @@
 
 // Different Usability schemes on how to navigate the 3d space
 
-class UsabilityScheme final : public QObject
-{
+class UsabilityScheme final : public QObject {
   Q_OBJECT
-public:
-  enum scheme_t
-  {
+ public:
+  enum scheme_t {
     DUMMY,
     BLENDER,
     MESHLAB,
@@ -45,12 +43,12 @@ public:
   static QString scheme_as_string(scheme_t scheme);
   static scheme_t scheme_from_string(QString scheme);
 
-signals:
+ signals:
   void fpsActivationKeySequenceChanged(QKeySequence keySequence);
   void zoomToCurrentPointActivationKeySequenceChanged(QKeySequence keySequence);
   void schemeChanged(scheme_t scheme);
 
-private:
+ private:
   class Implementation;
 
   Implementation* _implementation = nullptr;
@@ -58,14 +56,13 @@ private:
   QMap<scheme_t, QSharedPointer<Implementation>> implementations;
 };
 
-class UsabilityScheme::Implementation
-{
-public:
+class UsabilityScheme::Implementation {
+ public:
   class DummyScheme;
   class BlenderScheme;
   class MeshLabScheme;
 
-  template<typename base_t>
+  template <typename base_t>
   class BlenderStyleFpsScheme;
 
   Navigation::Controller& navigation;
@@ -88,4 +85,4 @@ public:
   virtual QKeySequence fps_activation_key_sequence() = 0;
   virtual QKeySequence zoom_to_current_point_activation_key_sequence() = 0;
 };
-#endif // POINTCLOUDVIEWER_USABILILTY_SCHEME_HPP_
+#endif  // POINTCLOUDVIEWER_USABILILTY_SCHEME_HPP_

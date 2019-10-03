@@ -7,26 +7,27 @@
 
 #include <QLabel>
 
-class SpyNode final : public QtNodes::NodeDataModel
-{
-public:
+class SpyNode final : public QtNodes::NodeDataModel {
+ public:
   SpyNode();
 
-  QString caption() const override{return "Spy";}
-  QString name() const override{return "Spy";}
+  QString caption() const override { return "Spy"; }
+  QString name() const override { return "Spy"; }
   uint nPorts(QtNodes::PortType portType) const override;
-  QtNodes::NodeDataType dataType(QtNodes::PortType, QtNodes::PortIndex) const override;
+  QtNodes::NodeDataType dataType(QtNodes::PortType,
+                                 QtNodes::PortIndex) const override;
 
-  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData, QtNodes::PortIndex port) override;
+  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData,
+                 QtNodes::PortIndex port) override;
 
   std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
   QWidget* embeddedWidget() override;
 
-private:
+ private:
   QLabel* _label_expression;
   QLabel* _label_type;
   QWidget* _root;
 };
 
-#endif // POINTCLOUDVIEWER_SHADER_NODES_SPY_NODE_HPP_
+#endif  // POINTCLOUDVIEWER_SHADER_NODES_SPY_NODE_HPP_

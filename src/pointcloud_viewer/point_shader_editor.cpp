@@ -1,41 +1,40 @@
-#include <core_library/print.hpp>
 #include <core_library/color_palette.hpp>
+#include <core_library/print.hpp>
 
+#include <pointcloud_viewer/mainwindow.hpp>
 #include <pointcloud_viewer/point_shader_editor.hpp>
 #include <pointcloud_viewer/viewport.hpp>
-#include <pointcloud_viewer/mainwindow.hpp>
 
 #include <nodes/FlowScene>
 #include <nodes/FlowView>
-#include <nodes/NodeDataModel>
 #include <nodes/Node>
+#include <nodes/NodeDataModel>
 
 #include <pointcloud_viewer/shader_nodes/make_vector_node.hpp>
 #include <pointcloud_viewer/shader_nodes/math_operator_node.hpp>
+#include <pointcloud_viewer/shader_nodes/mix_node.hpp>
+#include <pointcloud_viewer/shader_nodes/output_node.hpp>
 #include <pointcloud_viewer/shader_nodes/property_node.hpp>
+#include <pointcloud_viewer/shader_nodes/rgb_node.hpp>
 #include <pointcloud_viewer/shader_nodes/rotate_quickly_node.hpp>
 #include <pointcloud_viewer/shader_nodes/split_vector_node.hpp>
 #include <pointcloud_viewer/shader_nodes/spy_node.hpp>
-#include <pointcloud_viewer/shader_nodes/output_node.hpp>
 #include <pointcloud_viewer/shader_nodes/switch_node.hpp>
 #include <pointcloud_viewer/shader_nodes/value_node.hpp>
 #include <pointcloud_viewer/shader_nodes/vector_property_node.hpp>
-#include <pointcloud_viewer/shader_nodes/rgb_node.hpp>
-#include <pointcloud_viewer/shader_nodes/mix_node.hpp>
 
 #include <QApplication>
-#include <QMessageBox>
-#include <QMenuBar>
-#include <QVBoxLayout>
-#include <QQueue>
 #include <QDialogButtonBox>
-#include <QSettings>
 #include <QFileDialog>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QQueue>
+#include <QSettings>
+#include <QVBoxLayout>
 
 PointShaderEditor::PointShaderEditor(MainWindow* mainWindow)
-  : mainWindow(*mainWindow)
-{
+    : mainWindow(*mainWindow) {
   setWindowTitle("Point Shader");
 
   QVBoxLayout* rootLayout = new QVBoxLayout;
@@ -54,22 +53,30 @@ PointShaderEditor::PointShaderEditor(MainWindow* mainWindow)
   shader_menu->addSeparator();
   QAction* applyShaderEditor_action = shader_menu->addAction("Apply Shader");
   shader_menu->addSeparator();
-  QAction* closeShaderEditor_action = shader_menu->addAction("Close Shader Editor");
+  QAction* closeShaderEditor_action =
+      shader_menu->addAction("Close Shader Editor");
 
-  QObject::connect(appendShader_action, &QAction::triggered, this, &PointShaderEditor::appendShader);
-  QObject::connect(exportShader_action, &QAction::triggered, this, &PointShaderEditor::exportShader);
-  QObject::connect(importShader_action, &QAction::triggered, this, &PointShaderEditor::importShader);
+  QObject::connect(appendShader_action, &QAction::triggered, this,
+                   &PointShaderEditor::appendShader);
+  QObject::connect(exportShader_action, &QAction::triggered, this,
+                   &PointShaderEditor::exportShader);
+  QObject::connect(importShader_action, &QAction::triggered, this,
+                   &PointShaderEditor::importShader);
 
-  QObject::connect(applyShaderEditor_action, &QAction::triggered, this, &PointShaderEditor::applyShader);
-  QObject::connect(closeShaderEditor_action, &QAction::triggered, this, &PointShaderEditor::closeEditor);
+  QObject::connect(applyShaderEditor_action, &QAction::triggered, this,
+                   &PointShaderEditor::applyShader);
+  QObject::connect(closeShaderEditor_action, &QAction::triggered, this,
+                   &PointShaderEditor::closeEditor);
 
   fallbackFlowScene = new QtNodes::FlowScene(qt_nodes_model_registry(nullptr));
 
   {
     readonlyNotificationBar = new QLabel;
     readonlyNotificationBar->setVisible(false);
-    readonlyNotificationBar->setStyleSheet(QString("QLabel{background: " + color_palette::orange[0].hexcode() + "; color: " + color_palette::aluminium[5].hexcode() + "}"));
-    readonlyNotificationBar->setAlignment(Qt::AlignCenter|Qt::AlignVCenter);
+    readonlyNotificationBar->setStyleSheet(
+        QString("QLabel{background: " + color_palette::orange[0].hexcode() +
+                "; color: " + color_palette::aluminium[5].hexcode() + "}"));
+    readonlyNotificationBar->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
     QFont font = readonlyNotificationBar->font();
     font.setPixelSize(32);
     font.setBold(true);
@@ -91,8 +98,10 @@ PointShaderEditor::PointShaderEditor(MainWindow* mainWindow)
   close_button->setDefaultAction(closeShaderEditor_action);
 
   shaderName_Editor = new QLineEdit;
-  connect(shaderName_Editor, &QLineEdit::textChanged, this, &PointShaderEditor::setShaderName);
-  connect(this, &PointShaderEditor::shaderNameChanged, shaderName_Editor, &QLineEdit::setText);
+  connect(shaderName_Editor, &QLineEdit::textChanged, this,
+          &PointShaderEditor::setShaderName);
+  connect(this, &PointShaderEditor::shaderNameChanged, shaderName_Editor,
+          &QLineEdit::setText);
 
   QHBoxLayout* hbox = new QHBoxLayout;
   hbox->setMargin(8);
@@ -116,41 +125,39 @@ PointShaderEditor::PointShaderEditor(MainWindow* mainWindow)
 
     exportShader_action->setEnabled(is_pointcloud_loaded);
 
-    if(is_readonly)
+    if (is_readonly)
       readonlyNotificationBar->setText("Can't edit the current point-shader");
-    else if(!is_pointcloud_loaded)
+    else if (!is_pointcloud_loaded)
       readonlyNotificationBar->setText("No point cloud loaded");
     else
       readonlyNotificationBar->setText("Can't edit the shader");
     readonlyNotificationBar->setVisible(!something_to_edit);
   };
 
-  connect(this, &PointShaderEditor::isPointCloudLoadedChanged, update_widget_sensitivity);
-  connect(this, &PointShaderEditor::isReadOnlyChanged, update_widget_sensitivity);
+  connect(this, &PointShaderEditor::isPointCloudLoadedChanged,
+          update_widget_sensitivity);
+  connect(this, &PointShaderEditor::isReadOnlyChanged,
+          update_widget_sensitivity);
 
   update_widget_sensitivity();
 }
 
-PointShaderEditor::~PointShaderEditor()
-{
+PointShaderEditor::~PointShaderEditor() {
   delete fallbackFlowScene;
   delete flowScene;
 }
 
-void PointShaderEditor::unload_all_point_clouds()
-{
-  if(!isPointCloudLoaded())
-    return;
+void PointShaderEditor::unload_all_point_clouds() {
+  if (!isPointCloudLoaded()) return;
 
   unload_shader();
 
   isPointCloudLoadedChanged(isPointCloudLoaded());
 }
 
-void PointShaderEditor::load_point_cloud(QSharedPointer<PointCloud> point_cloud)
-{
-  if(point_cloud == nullptr)
-  {
+void PointShaderEditor::load_point_cloud(
+    QSharedPointer<PointCloud> point_cloud) {
+  if (point_cloud == nullptr) {
     unload_all_point_clouds();
     return;
   }
@@ -162,10 +169,8 @@ void PointShaderEditor::load_point_cloud(QSharedPointer<PointCloud> point_cloud)
   isPointCloudLoadedChanged(isPointCloudLoaded());
 }
 
-void PointShaderEditor::unload_shader()
-{
-  if(flowScene == nullptr)
-    return;
+void PointShaderEditor::unload_shader() {
+  if (flowScene == nullptr) return;
 
   delete flowScene;
   flowScene = nullptr;
@@ -174,23 +179,21 @@ void PointShaderEditor::unload_shader()
   _pointCloud.clear();
 }
 
-void PointShaderEditor::load_shader(PointCloud::Shader shader)
-{
+void PointShaderEditor::load_shader(PointCloud::Shader shader) {
   flowView->setScene(fallbackFlowScene);
   delete flowScene;
   flowScene = nullptr;
 
-  std::shared_ptr<QtNodes::DataModelRegistry> registry = qt_nodes_model_registry(_pointCloud.data());
+  std::shared_ptr<QtNodes::DataModelRegistry> registry =
+      qt_nodes_model_registry(_pointCloud.data());
 
   flowScene = new QtNodes::FlowScene(registry);
   flowScene->loadFromMemory(shader.node_data.toUtf8());
   flowView->setScene(flowScene);
 }
 
-void PointShaderEditor::append_shader(PointCloud::Shader shader)
-{
-  if(flowScene == nullptr)
-  {
+void PointShaderEditor::append_shader(PointCloud::Shader shader) {
+  if (flowScene == nullptr) {
     load_shader(shader);
     return;
   }
@@ -198,48 +201,54 @@ void PointShaderEditor::append_shader(PointCloud::Shader shader)
   flowScene->loadFromMemory(shader.node_data.toUtf8());
 }
 
-PointCloud::Shader PointShaderEditor::autogenerate(const PointCloud* pointcloud)
-{
+PointCloud::Shader PointShaderEditor::autogenerate(
+    const PointCloud* pointcloud) {
   static const QSet<QString> xyz_names = {"x", "y", "z"};
   static const QSet<QString> red_green_blue_names = {"red", "green", "blue"};
 
   PointCloud::Shader shader;
 
-  if(pointcloud != nullptr)
-  {
-    const QSet<QString> properties_contained_within_the_point_cloud = pointcloud->user_data_names.toList().toSet();
-    if(properties_contained_within_the_point_cloud.contains(xyz_names))
+  if (pointcloud != nullptr) {
+    const QSet<QString> properties_contained_within_the_point_cloud =
+        pointcloud->user_data_names.toList().toSet();
+    if (properties_contained_within_the_point_cloud.contains(xyz_names))
       shader.used_properties.unite(xyz_names);
-    if(properties_contained_within_the_point_cloud.contains(red_green_blue_names))
+    if (properties_contained_within_the_point_cloud.contains(
+            red_green_blue_names))
       shader.used_properties.unite(red_green_blue_names);
   }
 
-  std::shared_ptr<QtNodes::DataModelRegistry> registry = qt_nodes_model_registry(pointcloud);
+  std::shared_ptr<QtNodes::DataModelRegistry> registry =
+      qt_nodes_model_registry(pointcloud);
 
   QtNodes::FlowScene* flowScene = new QtNodes::FlowScene(registry);
 
   QSizeF areaSize(1024, 768);
   qreal margin = 16;
 
-  auto set_node_position = [flowScene, areaSize, margin](QtNodes::Node& node, QPointF relative) {
+  auto set_node_position = [flowScene, areaSize, margin](QtNodes::Node& node,
+                                                         QPointF relative) {
     QSizeF node_size = flowScene->getNodeSize(node);
-    QPointF pos(relative.x() * (areaSize.width() - margin * 2. - node_size.width()) + margin,
-                relative.y() * (areaSize.height() - margin * 2. - node_size.height()) + margin);
+    QPointF pos(
+        relative.x() * (areaSize.width() - margin * 2. - node_size.width()) +
+            margin,
+        relative.y() * (areaSize.height() - margin * 2. - node_size.height()) +
+            margin);
     flowScene->setNodePosition(node, pos);
   };
 
-  QtNodes::Node& outputNode = flowScene->createNode(std::make_unique<OutputNode>());
+  QtNodes::Node& outputNode =
+      flowScene->createNode(std::make_unique<OutputNode>());
   set_node_position(outputNode, QPointF(1., 0.5));
 
-  if(shader.used_properties.contains(xyz_names))
-  {
-    std::unique_ptr<QtNodes::NodeDataModel> model = registry->create("VectorProperty");
+  if (shader.used_properties.contains(xyz_names)) {
+    std::unique_ptr<QtNodes::NodeDataModel> model =
+        registry->create("VectorProperty");
 
     VectorPropertyNode* node = dynamic_cast<VectorPropertyNode*>(model.get());
     Q_ASSERT(node != nullptr);
 
-    if(node != nullptr)
-    {
+    if (node != nullptr) {
       node->set_properties("x", "y", "z");
 
       QtNodes::Node& coordinates_node = flowScene->createNode(std::move(model));
@@ -248,15 +257,14 @@ PointCloud::Shader PointShaderEditor::autogenerate(const PointCloud* pointcloud)
     }
   }
 
-  if(shader.used_properties.contains(red_green_blue_names))
-  {
-    std::unique_ptr<QtNodes::NodeDataModel> model = registry->create("VectorProperty");
+  if (shader.used_properties.contains(red_green_blue_names)) {
+    std::unique_ptr<QtNodes::NodeDataModel> model =
+        registry->create("VectorProperty");
 
     VectorPropertyNode* node = dynamic_cast<VectorPropertyNode*>(model.get());
     Q_ASSERT(node != nullptr);
 
-    if(node != nullptr)
-    {
+    if (node != nullptr) {
       node->set_properties("red", "green", "blue");
 
       QtNodes::Node& coordinates_node = flowScene->createNode(std::move(model));
@@ -272,77 +280,76 @@ PointCloud::Shader PointShaderEditor::autogenerate(const PointCloud* pointcloud)
   return shader;
 }
 
-bool PointShaderEditor::isPointCloudLoaded() const
-{
-  return _pointCloud!=nullptr;
+bool PointShaderEditor::isPointCloudLoaded() const {
+  return _pointCloud != nullptr;
 }
 
-bool PointShaderEditor::isReadOnly() const
-{
-  return m_isReadOnly;
-}
+bool PointShaderEditor::isReadOnly() const { return m_isReadOnly; }
 
-QString PointShaderEditor::shaderName() const
-{
-  return m_shaderName;
-}
+QString PointShaderEditor::shaderName() const { return m_shaderName; }
 
-void PointShaderEditor::setIsReadOnly(bool isReadOnly)
-{
-  if (m_isReadOnly == isReadOnly)
-    return;
+void PointShaderEditor::setIsReadOnly(bool isReadOnly) {
+  if (m_isReadOnly == isReadOnly) return;
 
   m_isReadOnly = isReadOnly;
   emit isReadOnlyChanged(m_isReadOnly);
 }
 
-void PointShaderEditor::setShaderName(QString shaderName)
-{
-  if (m_shaderName == shaderName)
-    return;
+void PointShaderEditor::setShaderName(QString shaderName) {
+  if (m_shaderName == shaderName) return;
 
   m_shaderName = shaderName;
   emit shaderNameChanged(m_shaderName);
 }
 
-std::shared_ptr<QtNodes::DataModelRegistry> PointShaderEditor::qt_nodes_model_registry(const PointCloud* currentPointcloud)
-{
+std::shared_ptr<QtNodes::DataModelRegistry>
+PointShaderEditor::qt_nodes_model_registry(
+    const PointCloud* currentPointcloud) {
   QStyle* style = QApplication::style();
 
   QStringList supportedPropertyNames;
   QStringList missingPropertyNames;
-  QPixmap warning_icon = style->standardIcon(QStyle::SP_MessageBoxWarning).pixmap(QSize(22,22));
+  QPixmap warning_icon =
+      style->standardIcon(QStyle::SP_MessageBoxWarning).pixmap(QSize(22, 22));
   QMap<QString, property_type_t> base_type_for_name;
-  if(currentPointcloud == nullptr)
-  {
-    missingPropertyNames << "x" << "y" << "z" << "red" << "green" << "blue";
-    base_type_for_name["x"]   = base_type_for_name["y"]    = base_type_for_name["z"]     = PROPERTY_TYPE::FLOAT32;
-    base_type_for_name["red"] = base_type_for_name["green"] = base_type_for_name["blue"] = PROPERTY_TYPE::UINT8;
-  }else
-  {
+  if (currentPointcloud == nullptr) {
+    missingPropertyNames << "x"
+                         << "y"
+                         << "z"
+                         << "red"
+                         << "green"
+                         << "blue";
+    base_type_for_name["x"] = base_type_for_name["y"] =
+        base_type_for_name["z"] = PROPERTY_TYPE::FLOAT32;
+    base_type_for_name["red"] = base_type_for_name["green"] =
+        base_type_for_name["blue"] = PROPERTY_TYPE::UINT8;
+  } else {
     supportedPropertyNames << currentPointcloud->user_data_names.toList();
 
-    for(QString expected_property : currentPointcloud->shader.used_properties)
-      if(!supportedPropertyNames.contains(expected_property))
-      {
+    for (QString expected_property : currentPointcloud->shader.used_properties)
+      if (!supportedPropertyNames.contains(expected_property)) {
         missingPropertyNames << expected_property;
         base_type_for_name[expected_property] = PROPERTY_TYPE::FLOAT64;
       }
 
-    for(int i=0; i<currentPointcloud->user_data_names.length(); ++i)
-      base_type_for_name[currentPointcloud->user_data_names[i]] = currentPointcloud->user_data_types[i];
+    for (int i = 0; i < currentPointcloud->user_data_names.length(); ++i)
+      base_type_for_name[currentPointcloud->user_data_names[i]] =
+          currentPointcloud->user_data_types[i];
   }
 
-  if(supportedPropertyNames.isEmpty() && missingPropertyNames.isEmpty())
-  {
-    missingPropertyNames << "x" << "y" << "z";
-    base_type_for_name["x"]   = base_type_for_name["y"]    = base_type_for_name["z"]     = PROPERTY_TYPE::FLOAT32;
+  if (supportedPropertyNames.isEmpty() && missingPropertyNames.isEmpty()) {
+    missingPropertyNames << "x"
+                         << "y"
+                         << "z";
+    base_type_for_name["x"] = base_type_for_name["y"] =
+        base_type_for_name["z"] = PROPERTY_TYPE::FLOAT32;
   }
 
   supportedPropertyNames.sort();
   missingPropertyNames.sort();
 
-  std::shared_ptr<QtNodes::DataModelRegistry> registry(new QtNodes::DataModelRegistry);
+  std::shared_ptr<QtNodes::DataModelRegistry> registry(
+      new QtNodes::DataModelRegistry);
 
   registry->registerModel<SwitchNode>("Conditional");
   registry->registerModel<MathOperatorNode>("Math");
@@ -354,45 +361,47 @@ std::shared_ptr<QtNodes::DataModelRegistry> PointShaderEditor::qt_nodes_model_re
   registry->registerModel<OutputNode>("Output");
   registry->registerModel<SpyNode>("Output");
   registry->registerModel<RgbNode>("Input");
-  registry->registerModel<PropertyNode>("Input",
-                                        [supportedPropertyNames, missingPropertyNames, base_type_for_name, warning_icon]() {
-    return std::make_unique<PropertyNode>(supportedPropertyNames, missingPropertyNames, base_type_for_name, warning_icon);
-  });
-  registry->registerModel<VectorPropertyNode>("Input",
-                                        [supportedPropertyNames, missingPropertyNames, base_type_for_name, warning_icon]() {
-    return std::make_unique<VectorPropertyNode>(supportedPropertyNames, missingPropertyNames, base_type_for_name, warning_icon);
-  });
+  registry->registerModel<PropertyNode>(
+      "Input", [supportedPropertyNames, missingPropertyNames,
+                base_type_for_name, warning_icon]() {
+        return std::make_unique<PropertyNode>(supportedPropertyNames,
+                                              missingPropertyNames,
+                                              base_type_for_name, warning_icon);
+      });
+  registry->registerModel<VectorPropertyNode>(
+      "Input", [supportedPropertyNames, missingPropertyNames,
+                base_type_for_name, warning_icon]() {
+        return std::make_unique<VectorPropertyNode>(
+            supportedPropertyNames, missingPropertyNames, base_type_for_name,
+            warning_icon);
+      });
 
   return registry;
 }
 
-void PointShaderEditor::applyShader()
-{
-  if(!isPointCloudLoaded())
-    return;
+void PointShaderEditor::applyShader() {
+  if (!isPointCloudLoaded()) return;
 
   _pointCloud->shader.node_data = flowScene->saveToMemory();
 
   PointCloud::Shader old_shader = _pointCloud->shader;
-  PointCloud::Shader new_shader = generate_code_from_shader(flowScene, _pointCloud->shader);
+  PointCloud::Shader new_shader =
+      generate_code_from_shader(flowScene, _pointCloud->shader);
 
   _pointCloud->shader = new_shader;
 
-  const bool coordinates_changed = old_shader.coordinate_expression != new_shader.coordinate_expression;
-  const bool colors_changed = old_shader.color_expression != new_shader.color_expression;
+  const bool coordinates_changed =
+      old_shader.coordinate_expression != new_shader.coordinate_expression;
+  const bool colors_changed =
+      old_shader.color_expression != new_shader.color_expression;
 
   shader_applied(coordinates_changed, colors_changed);
 }
 
-void PointShaderEditor::closeEditor()
-{
-  hide();
-}
+void PointShaderEditor::closeEditor() { hide(); }
 
-void PointShaderEditor::appendShader()
-{
-  if(!isPointCloudLoaded() || isReadOnly())
-  {
+void PointShaderEditor::appendShader() {
+  if (!isPointCloudLoaded() || isReadOnly()) {
     Q_UNREACHABLE();
     return;
   }
@@ -404,29 +413,27 @@ void PointShaderEditor::appendShader()
     dir = settings.value("VizualizationShaders/exportDir").toString();
   }
 
-  QString filename = QFileDialog::getOpenFileName(this, "Import Visualization", dir, "Point Visualization (*.point-visualization)");
-  if(!filename.isEmpty())
-  {
+  QString filename = QFileDialog::getOpenFileName(
+      this, "Import Visualization", dir,
+      "Point Visualization (*.point-visualization)");
+  if (!filename.isEmpty()) {
     {
       QSettings settings;
-      settings.setValue("VizualizationShaders/exportDir", QFileInfo(filename).dir().absolutePath());
+      settings.setValue("VizualizationShaders/exportDir",
+                        QFileInfo(filename).dir().absolutePath());
     }
 
-    try
-    {
+    try {
       append_shader(PointCloud::Shader::import_from_file(filename));
-    }catch(...)
-    {
-      QMessageBox::warning(this, "Import Error", "Couldn't import the Visualization");
+    } catch (...) {
+      QMessageBox::warning(this, "Import Error",
+                           "Couldn't import the Visualization");
     }
   }
-
 }
 
-void PointShaderEditor::importShader()
-{
-  if(!isPointCloudLoaded() || isReadOnly())
-  {
+void PointShaderEditor::importShader() {
+  if (!isPointCloudLoaded() || isReadOnly()) {
     Q_UNREACHABLE();
     return;
   }
@@ -438,28 +445,27 @@ void PointShaderEditor::importShader()
     dir = settings.value("VizualizationShaders/exportDir").toString();
   }
 
-  QString filename = QFileDialog::getOpenFileName(this, "Import Visualization", dir, "Point Visualization (*.point-visualization)");
-  if(!filename.isEmpty())
-  {
+  QString filename = QFileDialog::getOpenFileName(
+      this, "Import Visualization", dir,
+      "Point Visualization (*.point-visualization)");
+  if (!filename.isEmpty()) {
     {
       QSettings settings;
-      settings.setValue("VizualizationShaders/exportDir", QFileInfo(filename).dir().absolutePath());
+      settings.setValue("VizualizationShaders/exportDir",
+                        QFileInfo(filename).dir().absolutePath());
     }
 
-    try
-    {
+    try {
       load_shader(PointCloud::Shader::import_from_file(filename));
-    }catch(...)
-    {
-      QMessageBox::warning(this, "Import Error", "Couldn't import the Visualization");
+    } catch (...) {
+      QMessageBox::warning(this, "Import Error",
+                           "Couldn't import the Visualization");
     }
   }
 }
 
-void PointShaderEditor::exportShader()
-{
-  if(!isPointCloudLoaded())
-  {
+void PointShaderEditor::exportShader() {
+  if (!isPointCloudLoaded()) {
     Q_UNREACHABLE();
     return;
   }
@@ -471,17 +477,18 @@ void PointShaderEditor::exportShader()
     dir = settings.value("VizualizationShaders/exportDir").toString();
   }
 
-  QString filename = QFileDialog::getSaveFileName(this, "Export Visualization", dir, "Point Visualization (*.point-visualization)");
-  if(!filename.isEmpty())
-  {
+  QString filename = QFileDialog::getSaveFileName(
+      this, "Export Visualization", dir,
+      "Point Visualization (*.point-visualization)");
+  if (!filename.isEmpty()) {
     {
       QSettings settings;
-      settings.setValue("VizualizationShaders/exportDir", QFileInfo(filename).dir().absolutePath());
+      settings.setValue("VizualizationShaders/exportDir",
+                        QFileInfo(filename).dir().absolutePath());
     }
 
-    try
-    {
-      if(!filename.toLower().endsWith(".point-visualization"))
+    try {
+      if (!filename.toLower().endsWith(".point-visualization"))
         filename += ".point-visualization";
 
       PointCloud::Shader shader;
@@ -489,19 +496,18 @@ void PointShaderEditor::exportShader()
 
       shader = generate_code_from_shader(flowScene, shader);
       shader.export_to_file(filename);
-    }catch(...)
-    {
-      QMessageBox::warning(this, "Export Error", "Couldn't export the Visualization");
+    } catch (...) {
+      QMessageBox::warning(this, "Export Error",
+                           "Couldn't export the Visualization");
     }
   }
 }
 
-QSet<QString> find_used_properties(const PointCloud* pointcloud)
-{
-  if(pointcloud == nullptr)
-    return QSet<QString>();
+QSet<QString> find_used_properties(const PointCloud* pointcloud) {
+  if (pointcloud == nullptr) return QSet<QString>();
 
-  std::shared_ptr<QtNodes::DataModelRegistry> registry = PointShaderEditor::qt_nodes_model_registry(pointcloud);
+  std::shared_ptr<QtNodes::DataModelRegistry> registry =
+      PointShaderEditor::qt_nodes_model_registry(pointcloud);
 
   QtNodes::FlowScene* flowScene = new QtNodes::FlowScene(registry);
   flowScene->loadFromMemory(pointcloud->shader.node_data.toUtf8());
@@ -509,15 +515,13 @@ QSet<QString> find_used_properties(const PointCloud* pointcloud)
   return find_used_properties(flowScene);
 }
 
-PointCloud::Shader generate_code_from_shader(const PointCloud* pointcloud)
-{
-  if(pointcloud == nullptr)
-    return PointCloud::Shader();
+PointCloud::Shader generate_code_from_shader(const PointCloud* pointcloud) {
+  if (pointcloud == nullptr) return PointCloud::Shader();
 
-  if(pointcloud->shader.node_data.isEmpty())
-    return pointcloud->shader;
+  if (pointcloud->shader.node_data.isEmpty()) return pointcloud->shader;
 
-  std::shared_ptr<QtNodes::DataModelRegistry> registry = PointShaderEditor::qt_nodes_model_registry(pointcloud);
+  std::shared_ptr<QtNodes::DataModelRegistry> registry =
+      PointShaderEditor::qt_nodes_model_registry(pointcloud);
 
   QtNodes::FlowScene* flowScene = new QtNodes::FlowScene(registry);
   flowScene->loadFromMemory(pointcloud->shader.node_data.toUtf8());
@@ -525,28 +529,27 @@ PointCloud::Shader generate_code_from_shader(const PointCloud* pointcloud)
   return generate_code_from_shader(flowScene, pointcloud->shader);
 }
 
-PointCloud::Shader generate_code_from_shader(QtNodes::FlowScene* flowScene, PointCloud::Shader shader)
-{
+PointCloud::Shader generate_code_from_shader(QtNodes::FlowScene* flowScene,
+                                             PointCloud::Shader shader) {
   QString fallback_coordinate_expression = shader.coordinate_expression;
   QString fallback_color_expression = shader.color_expression;
 
   shader.coordinate_expression.clear();
   shader.color_expression.clear();
 
-  flowScene->iterateOverNodes([&shader](QtNodes::Node* node){
+  flowScene->iterateOverNodes([&shader](QtNodes::Node* node) {
     OutputNode* outputNode = dynamic_cast<OutputNode*>(node->nodeDataModel());
 
-    if(outputNode!=nullptr)
-    {
-      if(outputNode->coordinate != nullptr && outputNode->coordinate->expression.length() != 0)
-      {
-        if(!shader.coordinate_expression.isEmpty())
+    if (outputNode != nullptr) {
+      if (outputNode->coordinate != nullptr &&
+          outputNode->coordinate->expression.length() != 0) {
+        if (!shader.coordinate_expression.isEmpty())
           println_error("#error Multiple Output Nodes");
         shader.coordinate_expression = outputNode->coordinate->expression;
       }
-      if(outputNode->color != nullptr && outputNode->color->expression.length() != 0)
-      {
-        if(!shader.color_expression.isEmpty())
+      if (outputNode->color != nullptr &&
+          outputNode->color->expression.length() != 0) {
+        if (!shader.color_expression.isEmpty())
           println_error("#error Multiple Output Nodes");
         shader.color_expression = outputNode->color->expression;
       }
@@ -559,17 +562,17 @@ PointCloud::Shader generate_code_from_shader(QtNodes::FlowScene* flowScene, Poin
   return shader;
 }
 
-QSet<QString> find_used_properties(QtNodes::FlowScene* flowScene)
-{
+QSet<QString> find_used_properties(QtNodes::FlowScene* flowScene) {
   QSet<QString> used_properties;
 
-  // Lambda filling used_properties with all property names, which are actually used
-  auto collectProperties = [&used_properties, flowScene](QtNodes::Node* node){
+  // Lambda filling used_properties with all property names, which are actually
+  // used
+  auto collectProperties = [&used_properties, flowScene](QtNodes::Node* node) {
     QHash<QtNodes::Node*, QSet<QtNodes::Node*>> incoming_nodes;
-    for(auto _connection : flowScene->connections())
-    {
+    for (auto _connection : flowScene->connections()) {
       std::shared_ptr<QtNodes::Connection> connection = _connection.second;
-      incoming_nodes[connection->getNode(QtNodes::PortType::In)].insert(connection->getNode(QtNodes::PortType::Out));
+      incoming_nodes[connection->getNode(QtNodes::PortType::In)].insert(
+          connection->getNode(QtNodes::PortType::Out));
     }
 
     QSet<QtNodes::Node*> done_nodes;
@@ -577,24 +580,23 @@ QSet<QString> find_used_properties(QtNodes::FlowScene* flowScene)
 
     queued_nodes.enqueue(node);
 
-    while(queued_nodes.isEmpty() == false)
-    {
+    while (queued_nodes.isEmpty() == false) {
       node = queued_nodes.dequeue();
 
-      if(done_nodes.contains(node))
-        continue;
+      if (done_nodes.contains(node)) continue;
 
-      PropertyNode* property = dynamic_cast<PropertyNode*>(node->nodeDataModel());
-      VectorPropertyNode* vectorProperty = dynamic_cast<VectorPropertyNode*>(node->nodeDataModel());
+      PropertyNode* property =
+          dynamic_cast<PropertyNode*>(node->nodeDataModel());
+      VectorPropertyNode* vectorProperty =
+          dynamic_cast<VectorPropertyNode*>(node->nodeDataModel());
 
-      if(property != nullptr)
-        used_properties << property->property_name();
-      if(vectorProperty != nullptr)
-        for(QString n : vectorProperty->vector_properties_names())
+      if (property != nullptr) used_properties << property->property_name();
+      if (vectorProperty != nullptr)
+        for (QString n : vectorProperty->vector_properties_names())
           used_properties << n;
 
-      for(QtNodes::Node* n : incoming_nodes[node])
-        if(!done_nodes.contains(n) && !queued_nodes.contains(n))
+      for (QtNodes::Node* n : incoming_nodes[node])
+        if (!done_nodes.contains(n) && !queued_nodes.contains(n))
           queued_nodes.enqueue(n);
     }
   };
@@ -602,11 +604,10 @@ QSet<QString> find_used_properties(QtNodes::FlowScene* flowScene)
   // Find the output nodes to
   // a) collect all actually used attributes with collectProperties
   // b) generate the actual expression
-  flowScene->iterateOverNodes([collectProperties](QtNodes::Node* node){
+  flowScene->iterateOverNodes([collectProperties](QtNodes::Node* node) {
     OutputNode* outputNode = dynamic_cast<OutputNode*>(node->nodeDataModel());
 
-    if(outputNode!=nullptr)
-      collectProperties(node);
+    if (outputNode != nullptr) collectProperties(node);
   });
 
   return used_properties;

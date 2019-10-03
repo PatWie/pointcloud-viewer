@@ -5,9 +5,8 @@
 
 #include <nodes/NodeDataModel>
 
-class OutputNode final : public QtNodes::NodeDataModel
-{
-public:
+class OutputNode final : public QtNodes::NodeDataModel {
+ public:
   OutputNode();
 
   std::shared_ptr<Value> coordinate;
@@ -18,17 +17,19 @@ public:
   uint nPorts(QtNodes::PortType portType) const override;
   QString portCaption(QtNodes::PortType, QtNodes::PortIndex) const override;
   bool portCaptionVisible(QtNodes::PortType, QtNodes::PortIndex) const override;
-  QtNodes::NodeDataType dataType(QtNodes::PortType, QtNodes::PortIndex) const override;
+  QtNodes::NodeDataType dataType(QtNodes::PortType,
+                                 QtNodes::PortIndex) const override;
 
-  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData, QtNodes::PortIndex port) override;
+  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData,
+                 QtNodes::PortIndex port) override;
 
   std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
   QWidget* embeddedWidget() override;
 
-private:
+ private:
   void reset_coordinate();
   void reset_color();
 };
 
-#endif // POINTCLOUDVIEWER_SHADER_NODES_OUTPUT_NODE_HPP_
+#endif  // POINTCLOUDVIEWER_SHADER_NODES_OUTPUT_NODE_HPP_

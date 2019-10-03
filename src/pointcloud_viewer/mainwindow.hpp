@@ -1,37 +1,37 @@
 ﻿#ifndef POINTCLOUDVIEWER_MAINWINDOW_HPP_
 #define POINTCLOUDVIEWER_MAINWINDOW_HPP_
 
-#include <QMainWindow>
-#include <QListView>
-#include <QUrl>
 #include <QDropEvent>
+#include <QListView>
+#include <QMainWindow>
+#include <QUrl>
 
-#include <pointcloud_viewer/viewport.hpp>
-#include <pointcloud_viewer/kdtree_inspector.hpp>
-#include <pointcloud_viewer/pointcloud_inspector.hpp>
-#include <pointcloud_viewer/point_shader_editor.hpp>
 #include <pointcloud_viewer/flythrough/flythrough.hpp>
+#include <pointcloud_viewer/kdtree_inspector.hpp>
+#include <pointcloud_viewer/point_shader_editor.hpp>
+#include <pointcloud_viewer/pointcloud_inspector.hpp>
+#include <pointcloud_viewer/viewport.hpp>
 #include <pointcloud_viewer/workers/offline_renderer.hpp>
 
 class KeypointList;
 
-class MainWindow : public QMainWindow
-{
-Q_OBJECT
+class MainWindow : public QMainWindow {
+  Q_OBJECT
 
-public:
+ public:
   bool noninteractive = false;
 
   MainWindow();
   ~MainWindow();
 
-  bool apply_point_shader(PointCloud::Shader new_shader, bool coordinates_changed, bool colors_changed);
+  bool apply_point_shader(PointCloud::Shader new_shader,
+                          bool coordinates_changed, bool colors_changed);
 
-signals:
+ signals:
   void pointcloud_imported(QSharedPointer<PointCloud> point_cloud);
   void pointcloud_unloaded();
 
-private:
+ private:
   Viewport viewport;
   Flythrough flythrough;
   KdTreeInspector kdTreeInspector;
@@ -61,14 +61,14 @@ private:
   void offline_render_with_ui();
   bool offline_render();
 
-protected:
-  void dropEvent(QDropEvent *ev);
+ protected:
+  void dropEvent(QDropEvent* ev);
 
-  void dragEnterEvent(QDragEnterEvent *ev);
+  void dragEnterEvent(QDragEnterEvent* ev);
 
   void closeEvent(QCloseEvent* event);
 
-private:
+ private:
   QSharedPointer<PointCloud> pointcloud;
   PointCloud::Shader loadedShader;
 
@@ -76,5 +76,4 @@ private:
   void export_pointcloud(QString filepath, QString selectedFilter);
 };
 
-
-#endif // POINTCLOUDVIEWER_MAINWINDOW_HPP_
+#endif  // POINTCLOUDVIEWER_MAINWINDOW_HPP_

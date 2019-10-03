@@ -5,9 +5,8 @@
 
 #include <nodes/NodeDataModel>
 
-class SplitVectorNode final : public QtNodes::NodeDataModel
-{
-public:
+class SplitVectorNode final : public QtNodes::NodeDataModel {
+ public:
   SplitVectorNode();
 
   QString caption() const override;
@@ -15,17 +14,19 @@ public:
   uint nPorts(QtNodes::PortType portType) const override;
   QString portCaption(QtNodes::PortType, QtNodes::PortIndex) const override;
   bool portCaptionVisible(QtNodes::PortType, QtNodes::PortIndex) const override;
-  QtNodes::NodeDataType dataType(QtNodes::PortType, QtNodes::PortIndex) const override;
+  QtNodes::NodeDataType dataType(QtNodes::PortType,
+                                 QtNodes::PortIndex) const override;
 
-  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData, QtNodes::PortIndex port) override;
+  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData,
+                 QtNodes::PortIndex port) override;
 
   std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
   QWidget* embeddedWidget() override;
 
-private:
+ private:
   std::shared_ptr<Value> vector;
   std::shared_ptr<Value> x, y, z;
 };
 
-#endif // POINTCLOUDVIEWER_SHADER_NODES_SPLIT_VECTOR_NODE_HPP_
+#endif  // POINTCLOUDVIEWER_SHADER_NODES_SPLIT_VECTOR_NODE_HPP_

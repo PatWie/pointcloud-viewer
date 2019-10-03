@@ -1,24 +1,23 @@
 #ifndef POINTCLOUD_WORKERS_IMPORTER_PCVD_HPP_
 #define POINTCLOUD_WORKERS_IMPORTER_PCVD_HPP_
 
-#include <pointcloud/importer/abstract_importer.hpp>
 #include <pointcloud/buffer.hpp>
+#include <pointcloud/importer/abstract_importer.hpp>
 
 #include <QVector>
 
 /**
 Implementation for loading ply files
 */
-class PcvdImporter final : public AbstractPointCloudImporter
-{
-public:
+class PcvdImporter final : public AbstractPointCloudImporter {
+ public:
   PcvdImporter(const std::string& input_file);
 
-protected:
+ protected:
   bool import_implementation() override;
 
-private:
+ private:
   std::streamsize current_progress = 0;
 };
 
-#endif // POINTCLOUD_WORKERS_IMPORTER_PCVD_HPP_
+#endif  // POINTCLOUD_WORKERS_IMPORTER_PCVD_HPP_

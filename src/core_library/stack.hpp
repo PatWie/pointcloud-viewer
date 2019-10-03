@@ -5,10 +5,9 @@
 
 // Simple stack class
 
-template<typename T>
-class Stack
-{
-public:
+template <typename T>
+class Stack {
+ public:
   std::vector<T> values;
 
   void reserve(size_t length);
@@ -22,4 +21,4 @@ public:
 
 #include <core_library/stack.inl>
 
-#endif // CORELIBRARY_STACK_HPP_
+#endif  // CORELIBRARY_STACK_HPP_

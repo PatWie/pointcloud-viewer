@@ -1,11 +1,11 @@
 ﻿#ifndef POINTCLOUDVIEWER_VISUALIZATIONS_HPP_
 #define POINTCLOUDVIEWER_VISUALIZATIONS_HPP_
 
-#include <renderer/gl450/point_renderer.hpp>
 #include <renderer/gl450/debug/debug_mesh.hpp>
+#include <renderer/gl450/point_renderer.hpp>
 
-#include <pointcloud_viewer/flythrough/keypoint.hpp>
 #include <pointcloud_viewer/camera.hpp>
+#include <pointcloud_viewer/flythrough/keypoint.hpp>
 
 #include <QPainter>
 
@@ -15,11 +15,9 @@ Class responsible for rendering visualizations
 - world axis
 - world grid
 */
-class Visualization : public QObject
-{
-public:
-  struct settings_t
-  {
+class Visualization : public QObject {
+ public:
+  struct settings_t {
     bool enable_any_visualizations : 1;
     bool enable_grid : 1;
     bool enable_axis : 1;
@@ -44,18 +42,20 @@ public:
   void set_turntable_origin(glm::vec3 origin);
   void set_path(const QVector<keypoint_t>& keypoints, int selected_point);
 
-  void set_kdtree_as_aabb(aabb_t highlighted_aabb, glm::vec3 separator_point, aabb_t other_aabb);
+  void set_kdtree_as_aabb(aabb_t highlighted_aabb, glm::vec3 separator_point,
+                          aabb_t other_aabb);
   void set_picked_cone(cone_t picked_cone);
 
   void deselect_picked_point();
   void select_picked_point(glm::vec3 coordinate, glm::u8vec3 color);
 
-  void draw_overlay(QPainter& painter, const Camera& camera, int pointSize, glm::ivec2 viewport_size);
+  void draw_overlay(QPainter& painter, const Camera& camera, int pointSize,
+                    glm::ivec2 viewport_size);
 
   void set_trackball(glm::vec3 center, float radius);
   void set_trackball(glm::vec3 center);
 
-private:
+ private:
   typedef renderer::gl450::DebugMeshRenderer DebugMeshRenderer;
   typedef renderer::gl450::DebugMesh DebugMesh;
 
@@ -77,4 +77,4 @@ private:
   DebugMesh kdtree_current_point;
 };
 
-#endif // POINTCLOUDVIEWER_VISUALIZATIONS_HPP_
+#endif  // POINTCLOUDVIEWER_VISUALIZATIONS_HPP_

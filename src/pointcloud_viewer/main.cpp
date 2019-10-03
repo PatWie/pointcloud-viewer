@@ -16,8 +16,7 @@ Q_DECLARE_METATYPE(glm::uvec2)
 Q_DECLARE_METATYPE(glm::uvec3)
 Q_DECLARE_METATYPE(glm::uvec4)
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   qRegisterMetaType<glm::vec2>();
   qRegisterMetaType<glm::vec3>();
   qRegisterMetaType<glm::vec4>();
@@ -40,6 +39,5 @@ int main(int argc, char** argv)
 
   mainwindow.show();
 
-  if(mainwindow.noninteractive == false)
-    application.exec();
+  if (mainwindow.noninteractive == false) application.exec();
 }

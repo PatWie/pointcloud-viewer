@@ -4,8 +4,8 @@
 #include <renderer/gl450/declarations.hpp>
 
 #include <glhelper/buffer.hpp>
-#include <glhelper/vertexarrayobject.hpp>
 #include <glhelper/shaderobject.hpp>
+#include <glhelper/vertexarrayobject.hpp>
 
 namespace renderer {
 namespace gl450 {
@@ -14,9 +14,8 @@ namespace gl450 {
 Renderer responsible for rendering a single point-cloud.
 Multiple of those can be used for having multiple layers of point clouds.
 */
-class PointRenderer final
-{
-public:
+class PointRenderer final {
+ public:
   PointRenderer();
   ~PointRenderer();
 
@@ -25,18 +24,18 @@ public:
 
   void clear_buffer();
   void load_points(const uint8_t* point_data, GLsizei num_points);
-  void load_test(GLsizei num_vertices=512);
+  void load_test(GLsizei num_vertices = 512);
 
   void render_points();
 
-private:
+ private:
   gl::ShaderObject shader_object;
   gl::Buffer vertex_position_buffer;
   gl::VertexArrayObject vertex_array_object;
   GLsizei num_vertices = 0;
 };
 
-} //namespace gl450
-} //namespace renderer
+}  // namespace gl450
+}  // namespace renderer
 
-#endif // RENDERSYSTEM_GL450_POINT_RENDERER_HPP_
+#endif  // RENDERSYSTEM_GL450_POINT_RENDERER_HPP_

@@ -3,13 +3,12 @@
 
 #include <pointcloud/exporter/abstract_exporter.hpp>
 
-class PlyExporter final : public AbstractPointCloudExporter
-{
-public:
+class PlyExporter final : public AbstractPointCloudExporter {
+ public:
   PlyExporter(const std::string& output_file, const PointCloud& pointcloud);
 
-protected:
+ protected:
   bool export_implementation() override;
 };
 
-#endif // POINTCLOUD_WORKERS_EXPORTER_PLY_HPP_
+#endif  // POINTCLOUD_WORKERS_EXPORTER_PLY_HPP_

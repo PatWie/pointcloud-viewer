@@ -3,4 +3,4 @@
 
 class Visualization;
 
-#endif // POINTCLOUDVIEWER_DECLARATIONS_HPP_
+#endif  // POINTCLOUDVIEWER_DECLARATIONS_HPP_

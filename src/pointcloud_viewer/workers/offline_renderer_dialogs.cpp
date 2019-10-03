@@ -1,28 +1,28 @@
-#include <pointcloud_viewer/workers/offline_renderer_dialogs.hpp>
 #include <pointcloud_viewer/mainwindow.hpp>
+#include <pointcloud_viewer/workers/offline_renderer_dialogs.hpp>
 
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QDoubleSpinBox>
-#include <QGroupBox>
-#include <QSplitter>
-#include <QLabel>
 #include <QCheckBox>
 #include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QFileInfo>
-#include <QStandardPaths>
-#include <QProgressBar>
-#include <QSettings>
 #include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDoubleSpinBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QSettings>
+#include <QSplitter>
+#include <QStandardPaths>
+#include <QVBoxLayout>
 
-QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSettings prevSettings)
-{
+QPair<RenderSettings, bool> ask_for_render_settings(
+    QWidget* parent, RenderSettings prevSettings) {
   QDialog dialog(parent);
 
   dialog.setWindowModality(Qt::ApplicationModal);
@@ -76,22 +76,29 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   formWidget->setLayout(form);
   vbox->addWidget(formWidget, 1);
 
-  QString videoFile = QFileInfo(prevSettings.target_video_file).dir().exists() ? prevSettings.target_video_file : "";
-  QLabel* videoFile_label = new QLabel(".../"+QFileInfo(videoFile).fileName());
+  QString videoFile = QFileInfo(prevSettings.target_video_file).dir().exists()
+                          ? prevSettings.target_video_file
+                          : "";
+  QLabel* videoFile_label =
+      new QLabel(".../" + QFileInfo(videoFile).fileName());
   videoFile_label->setWordWrap(true);
   QPushButton* chooseVideoOutputFile = new QPushButton("...");
-  QObject::connect(chooseVideoOutputFile, &QPushButton::clicked, [&dialog, &videoFile, videoFile_label](){
-    QString filter; // TODO
-    QString path = QFileDialog::getSaveFileName(&dialog,
-                                                "Video Output file",
-                                                QFileInfo(videoFile).dir().exists() ? QFileInfo(videoFile).dir().absolutePath() : QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
-                                                filter);
-    if(!path.isEmpty())
-    {
-      videoFile = path;
-      videoFile_label->setText(".../"+QFileInfo(path).fileName());
-    }
-  });
+  QObject::connect(
+      chooseVideoOutputFile, &QPushButton::clicked,
+      [&dialog, &videoFile, videoFile_label]() {
+        QString filter;  // TODO
+        QString path = QFileDialog::getSaveFileName(
+            &dialog, "Video Output file",
+            QFileInfo(videoFile).dir().exists()
+                ? QFileInfo(videoFile).dir().absolutePath()
+                : QStandardPaths::writableLocation(
+                      QStandardPaths::DocumentsLocation),
+            filter);
+        if (!path.isEmpty()) {
+          videoFile = path;
+          videoFile_label->setText(".../" + QFileInfo(path).fileName());
+        }
+      });
   hbox = new QHBoxLayout;
   hbox->addWidget(videoFile_label, 10);
   hbox->addWidget(chooseVideoOutputFile, 0);
@@ -104,7 +111,8 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   splitter->addWidget(group);
 
   enableVideoOutput->setChecked(true);
-  QObject::connect(enableVideoOutput, &QCheckBox::toggled, formWidget, &QWidget::setEnabled);
+  QObject::connect(enableVideoOutput, &QCheckBox::toggled, formWidget,
+                   &QWidget::setEnabled);
   enableVideoOutput->setChecked(videoFile.isEmpty() == false);
 #endif
 
@@ -119,19 +127,26 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   vbox->addWidget(formWidget, 1);
 
   QString imageDirectory;
-  QLabel* imageDirectory_label = new QLabel(".../"+QFileInfo(imageDirectory).fileName());
-  auto set_path = [imageDirectory_label, &imageDirectory](QString path){
+  QLabel* imageDirectory_label =
+      new QLabel(".../" + QFileInfo(imageDirectory).fileName());
+  auto set_path = [imageDirectory_label, &imageDirectory](QString path) {
     imageDirectory = path;
-    imageDirectory_label->setText(".../"+QFileInfo(path).dir().dirName()+'/'+QFileInfo(path).fileName());
+    imageDirectory_label->setText(".../" + QFileInfo(path).dir().dirName() +
+                                  '/' + QFileInfo(path).fileName());
   };
-  set_path(prevSettings.target_images_directory.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::DesktopLocation)+"/render_result" : prevSettings.target_images_directory);
+  set_path(
+      prevSettings.target_images_directory.isEmpty()
+          ? QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) +
+                "/render_result"
+          : prevSettings.target_images_directory);
   imageDirectory_label->setWordWrap(true);
   QPushButton* chooseImageDirectory = new QPushButton("...");
-  QObject::connect(chooseImageDirectory, &QPushButton::clicked, [&dialog, &imageDirectory, set_path](){
-    QString path = QFileDialog::getExistingDirectory(&dialog, "Image Output directory", imageDirectory);
-    if(!path.isEmpty())
-      set_path(path);
-  });
+  QObject::connect(chooseImageDirectory, &QPushButton::clicked,
+                   [&dialog, &imageDirectory, set_path]() {
+                     QString path = QFileDialog::getExistingDirectory(
+                         &dialog, "Image Output directory", imageDirectory);
+                     if (!path.isEmpty()) set_path(path);
+                   });
   hbox = new QHBoxLayout;
   hbox->addWidget(imageDirectory_label, 10);
   hbox->addWidget(chooseImageDirectory, 0);
@@ -144,9 +159,10 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
     supportedFormats.insert("bmp", ".bmp");
     supportedFormats.insert("ppm", ".ppm");
 
-    for(auto i=supportedFormats.begin(); i!=supportedFormats.end(); ++i)
+    for (auto i = supportedFormats.begin(); i != supportedFormats.end(); ++i)
       imageFormat->addItem(i.key(), i.value());
-    imageFormat->setCurrentText(supportedFormats.key(prevSettings.image_format, "png"));
+    imageFormat->setCurrentText(
+        supportedFormats.key(prevSettings.image_format, "png"));
   }
   form->addRow("Format", imageFormat);
 
@@ -158,8 +174,10 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   vbox->addWidget(enableImageOutput);
 
   enableImageOutput->setChecked(true);
-  QObject::connect(enableImageOutput, &QCheckBox::toggled, formWidget, &QWidget::setEnabled);
-  enableImageOutput->setChecked(prevSettings.target_images_directory.isEmpty() == false);
+  QObject::connect(enableImageOutput, &QCheckBox::toggled, formWidget,
+                   &QWidget::setEnabled);
+  enableImageOutput->setChecked(
+      prevSettings.target_images_directory.isEmpty() == false);
 #endif
 
   // ==== Buttons ====
@@ -173,28 +191,27 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   buttons->addButton(QDialogButtonBox::Ok);
   buttons->addButton(QDialogButtonBox::Cancel);
 
-  QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-  QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+  QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog,
+                   &QDialog::accept);
+  QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog,
+                   &QDialog::reject);
 
-  if(dialog.exec() != QDialog::Accepted)
-    return qMakePair(prevSettings, true);
+  if (dialog.exec() != QDialog::Accepted) return qMakePair(prevSettings, true);
 
   bool use_result = true;
   RenderSettings renderSettings;
 
-  renderSettings.resolution = QSize(resolution_width->value(), resolution_height->value());
+  renderSettings.resolution =
+      QSize(resolution_width->value(), resolution_height->value());
   renderSettings.framerate = framerate->value();
 #if VIDEO_OUTPUT
   renderSettings.target_video_file = videoFile;
-  if(!enableVideoOutput->isChecked())
-    use_result = false;
+  if (!enableVideoOutput->isChecked()) use_result = false;
 #endif
-
 
   renderSettings.target_images_directory = imageDirectory;
 #if VIDEO_OUTPUT
-  if(!enableImageOutput->isChecked())
-  {
+  if (!enableImageOutput->isChecked()) {
     renderSettings.export_images = false;
     use_result = false;
   }
@@ -207,42 +224,44 @@ QPair<RenderSettings, bool> ask_for_render_settings(QWidget* parent, RenderSetti
   return qMakePair(renderSettings, !use_result);
 }
 
-
-void MainWindow::offline_render_with_ui()
-{
-  QPair<RenderSettings, bool> result = ask_for_render_settings(this, renderSettings);
+void MainWindow::offline_render_with_ui() {
+  QPair<RenderSettings, bool> result =
+      ask_for_render_settings(this, renderSettings);
 
   this->renderSettings = result.first;
   bool was_canceled = result.second;
 
-  if(was_canceled)
-    return;
+  if (was_canceled) return;
 
   this->renderSettings.storeSettings();
 
-  if(!QDir(renderSettings.target_images_directory).exists() && !QDir(renderSettings.target_images_directory).mkpath("."))
-  {
-    QMessageBox::warning(this, "IO failure", "Could not create the directory\n"+renderSettings.target_images_directory);
+  if (!QDir(renderSettings.target_images_directory).exists() &&
+      !QDir(renderSettings.target_images_directory).mkpath(".")) {
+    QMessageBox::warning(this, "IO failure",
+                         "Could not create the directory\n" +
+                             renderSettings.target_images_directory);
     return;
   }
 
   offline_render();
 }
 
-
-bool MainWindow::offline_render()
-{
+bool MainWindow::offline_render() {
   OfflineRenderer offlineRenderer(&viewport, flythrough, renderSettings);
 
   QFileInfo target_image_dir(renderSettings.target_images_directory);
-  if(target_image_dir.isDir() == false && target_image_dir.dir().mkpath(target_image_dir.fileName()) == false)
-  {
-    QMessageBox::warning(nullptr, "IO error", QString("Couldn't create target directory\n\n%0").arg(target_image_dir.absolutePath()));
+  if (target_image_dir.isDir() == false &&
+      target_image_dir.dir().mkpath(target_image_dir.fileName()) == false) {
+    QMessageBox::warning(nullptr, "IO error",
+                         QString("Couldn't create target directory\n\n%0")
+                             .arg(target_image_dir.absolutePath()));
     return false;
   }
-  if(target_image_dir.isWritable() == false)
-  {
-    QMessageBox::warning(nullptr, "IO error", QString("The image target dir\n\n%0\n\nis not writable").arg(target_image_dir.absolutePath()));
+  if (target_image_dir.isWritable() == false) {
+    QMessageBox::warning(
+        nullptr, "IO error",
+        QString("The image target dir\n\n%0\n\nis not writable")
+            .arg(target_image_dir.absolutePath()));
     return false;
   }
 
@@ -256,7 +275,8 @@ bool MainWindow::offline_render()
   // ==== Progressbar ====
   QProgressBar* progressBar = new QProgressBar;
 
-  progressBar->setMaximum(offlineRenderer.flythrough->playback.totalNumberFramesForFixedFramerate());
+  progressBar->setMaximum(offlineRenderer.flythrough->playback
+                              .totalNumberFramesForFixedFramerate());
   progressBar->setTextVisible(true);
   root->addWidget(progressBar, 0);
 
@@ -264,11 +284,13 @@ bool MainWindow::offline_render()
   QLabel* rendered_frame = new QLabel("Please wait...");
   root->addWidget(rendered_frame, 1);
 
-  connect(&offlineRenderer, &OfflineRenderer::rendered_frame, [rendered_frame, progressBar](int frame_index, QImage frame){
-    progressBar->setValue(frame_index);
-    progressBar->setFormat("%v/%m (%p%)");
-    rendered_frame->setPixmap(QPixmap::fromImage(frame.scaledToHeight(384)));
-  });
+  connect(&offlineRenderer, &OfflineRenderer::rendered_frame,
+          [rendered_frame, progressBar](int frame_index, QImage frame) {
+            progressBar->setValue(frame_index);
+            progressBar->setFormat("%v/%m (%p%)");
+            rendered_frame->setPixmap(
+                QPixmap::fromImage(frame.scaledToHeight(384)));
+          });
 
   // ==== Buttons ====
   QDialogButtonBox* buttons = new QDialogButtonBox;
@@ -279,49 +301,60 @@ bool MainWindow::offline_render()
 
   buttons->addButton(QDialogButtonBox::Abort);
 
-  QObject::connect(buttons, &QDialogButtonBox::rejected, &offlineRenderer, &OfflineRenderer::abort);
-  QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-  QObject::connect(&offlineRenderer, &OfflineRenderer::on_aborted, [&dialog](){
-    dialog.done(-1);
-  });
-  QObject::connect(&offlineRenderer, &OfflineRenderer::finished, &dialog, &QDialog::accept);
+  QObject::connect(buttons, &QDialogButtonBox::rejected, &offlineRenderer,
+                   &OfflineRenderer::abort);
+  QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog,
+                   &QDialog::reject);
+  QObject::connect(&offlineRenderer, &OfflineRenderer::on_aborted,
+                   [&dialog]() { dialog.done(-1); });
+  QObject::connect(&offlineRenderer, &OfflineRenderer::finished, &dialog,
+                   &QDialog::accept);
 
   offlineRenderer.start();
 
-  if(offlineRenderer.was_aborted()==false && dialog.exec() != QDialog::Accepted && dialog.result()==QDialogButtonBox::Abort)
-  {
-    QMessageBox::warning(this, "Rendering aborted", "Rendering process was aborted");
+  if (offlineRenderer.was_aborted() == false &&
+      dialog.exec() != QDialog::Accepted &&
+      dialog.result() == QDialogButtonBox::Abort) {
+    QMessageBox::warning(this, "Rendering aborted",
+                         "Rendering process was aborted");
     return false;
   }
 
   return !offlineRenderer.was_aborted();
 }
 
-RenderSettings RenderSettings::defaultSettings()
-{
+RenderSettings RenderSettings::defaultSettings() {
   QSettings settings;
 
   RenderSettings renderSettings;
 
-  renderSettings.resolution = settings.value("RenderSettings/resolution", QSize(1920, 1080)).toSize();
-  renderSettings.framerate = settings.value("RenderSettings/framerate", 25).toInt();
-  renderSettings.first_index = settings.value("RenderSettings/first_index", 0).toInt();
-  renderSettings.image_format = settings.value("RenderSettings/image_format", ".png").toString();;
-  renderSettings.target_images_directory = settings.value("RenderSettings/target_images_directory", QString()).toString();;
+  renderSettings.resolution =
+      settings.value("RenderSettings/resolution", QSize(1920, 1080)).toSize();
+  renderSettings.framerate =
+      settings.value("RenderSettings/framerate", 25).toInt();
+  renderSettings.first_index =
+      settings.value("RenderSettings/first_index", 0).toInt();
+  renderSettings.image_format =
+      settings.value("RenderSettings/image_format", ".png").toString();
+  ;
+  renderSettings.target_images_directory =
+      settings.value("RenderSettings/target_images_directory", QString())
+          .toString();
+  ;
 
-  if(!QDir(renderSettings.target_images_directory).exists())
+  if (!QDir(renderSettings.target_images_directory).exists())
     renderSettings.target_images_directory.clear();
 
   return renderSettings;
 }
 
-void RenderSettings::storeSettings()
-{
+void RenderSettings::storeSettings() {
   QSettings settings;
 
   settings.setValue("RenderSettings/resolution", this->resolution);
   settings.setValue("RenderSettings/framerate", this->framerate);
   settings.setValue("RenderSettings/first_index", this->first_index);
   settings.setValue("RenderSettings/image_format", this->image_format);
-  settings.setValue("RenderSettings/target_images_directory", this->target_images_directory);
+  settings.setValue("RenderSettings/target_images_directory",
+                    this->target_images_directory);
 }

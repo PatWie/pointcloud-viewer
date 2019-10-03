@@ -3,9 +3,9 @@
 
 #include <pointcloud_viewer/camera.hpp>
 
-#include <QObject>
-#include <QMouseEvent>
 #include <QKeyEvent>
+#include <QMouseEvent>
+#include <QObject>
 
 class Viewport;
 class UsabilityScheme;
@@ -13,10 +13,9 @@ class UsabilityScheme;
 /*
 Handles input events for implementing navigation
 */
-class Navigation final : public QObject
-{
+class Navigation final : public QObject {
   Q_OBJECT
-public:
+ public:
   class Controller;
 
   Camera camera;
@@ -30,9 +29,9 @@ public:
   void unsetSelectedPoint();
   void setSelectedPoint(glm::vec3 selectedPoint);
 
-public slots:
+ public slots:
   void startFpsNavigation();
-  void stopFpsNavigation(bool keepNewFrame=true);
+  void stopFpsNavigation(bool keepNewFrame = true);
 
   void resetCameraLocation();
   void resetMovementSpeed();
@@ -54,17 +53,16 @@ public slots:
 
   void handle_new_point_cloud();
 
-protected:
+ protected:
   void timerEvent(QTimerEvent* timerEvent);
 
-signals:
+ signals:
   void mouse_sensitivity_value_changed(int value);
 
   void picked_point(glm::ivec2 point);
 
-private:
-  enum distance_t
-  {
+ private:
+  enum distance_t {
     CLOSE,
     FAR,
     VERY_FAR,
@@ -82,7 +80,9 @@ private:
   void update_trackball_radius();
   glm::vec3 trackball_position_right_infront_of_camera() const;
 
-  static glm::ivec2 invalid_last_mouse_pos(){return glm::ivec2(std::numeric_limits<int>::min());}
+  static glm::ivec2 invalid_last_mouse_pos() {
+    return glm::ivec2(std::numeric_limits<int>::min());
+  }
   glm::ivec2 last_mouse_pos = invalid_last_mouse_pos();
 
   glm::ivec2 viewport_center() const;
@@ -95,7 +95,7 @@ private:
   float base_movement_speed() const;
   float mouse_sensitivity() const;
 
-  float _last_frame_duration = 1/60.f;
+  float _last_frame_duration = 1 / 60.f;
 
   int _base_movement_speed = 0;
   int _mouse_sensitivity_value = 0;
@@ -119,9 +119,8 @@ private:
   void pick_point(const glm::ivec2 screenspace_pixel);
 };
 
-class Navigation::Controller final
-{
-public:
+class Navigation::Controller final {
+ public:
   glm::vec3 key_direction = glm::vec3(0.f);
   int key_speed = 0;
   glm::vec3 key_force = glm::vec3(0.f);
@@ -141,7 +140,7 @@ public:
   void reset_camera_tilt();
 
   void startFpsNavigation();
-  void stopFpsNavigation(bool keepNewFrame=true);
+  void stopFpsNavigation(bool keepNewFrame = true);
 
   void show_trackball();
   void begin_trackball_action();
@@ -169,17 +168,17 @@ public:
 
   void update_key_force();
 
-private:
+ private:
   friend class Navigation;
 
   Navigation& navigation;
 
   Controller(Navigation& navigation);
 
-  void _rotate(glm::vec3 rotation_center, glm::vec2 mouse_force, glm::vec3 x_rotation_axis, glm::vec3 y_rotation_axis);
+  void _rotate(glm::vec3 rotation_center, glm::vec2 mouse_force,
+               glm::vec3 x_rotation_axis, glm::vec3 y_rotation_axis);
   glm::vec3 _shift(glm::vec2 mouse_force);
   void _zoom(glm::vec3 origin, float mouse_force_y);
 };
 
-
-#endif // POINTCLOUDVIEWER_NAVIGATION_HPP_
+#endif  // POINTCLOUDVIEWER_NAVIGATION_HPP_

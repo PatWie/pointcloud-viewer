@@ -17,5 +17,4 @@ glm::vec3 xyz(glm::vec4 xyzw);
 
 #include <geometry/swizzle.inl>
 
-#endif // GEOMETRY_SWIZZLE_HPP_
-
+#endif  // GEOMETRY_SWIZZLE_HPP_

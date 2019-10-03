@@ -8,9 +8,8 @@
 #include <QMap>
 #include <QSpinBox>
 
-class SwitchNode final : public QtNodes::NodeDataModel
-{
-public:
+class SwitchNode final : public QtNodes::NodeDataModel {
+ public:
   SwitchNode();
 
   QJsonObject save() const override;
@@ -21,15 +20,17 @@ public:
   uint nPorts(QtNodes::PortType portType) const override;
   QString portCaption(QtNodes::PortType, QtNodes::PortIndex) const override;
   bool portCaptionVisible(QtNodes::PortType, QtNodes::PortIndex) const override;
-  QtNodes::NodeDataType dataType(QtNodes::PortType, QtNodes::PortIndex) const override;
+  QtNodes::NodeDataType dataType(QtNodes::PortType,
+                                 QtNodes::PortIndex) const override;
 
-  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData, QtNodes::PortIndex port) override;
+  void setInData(std::shared_ptr<QtNodes::NodeData> nodeData,
+                 QtNodes::PortIndex port) override;
 
   std::shared_ptr<QtNodes::NodeData> outData(QtNodes::PortIndex port) override;
 
   QWidget* embeddedWidget() override;
 
-private:
+ private:
   constexpr static const int N = 10;
   constexpr static const int index_condition = 0;
   constexpr static const int index_values[N] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -48,4 +49,4 @@ private:
   void update_result();
 };
 
-#endif // POINTCLOUDVIEWER_SHADER_NODES_COLOR_CLASS_NODE_HPP_
+#endif  // POINTCLOUDVIEWER_SHADER_NODES_COLOR_CLASS_NODE_HPP_
