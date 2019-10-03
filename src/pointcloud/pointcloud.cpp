@@ -52,6 +52,18 @@ PointCloud::UserData PointCloud::all_values_of_point(size_t point_index) const {
   return UserData{user_data_names, values};
 }
 
+void PointCloud::set_label(size_t point_index, int label) {
+  if (point_index != (size_t)KDTreeIndex::point_index_t::INVALID) {
+    std::cout << "PointCloud::set_label" << std::endl;
+
+    const int user_data_idx = 6;
+    uint8_t* data = user_data.data() + user_data_stride * point_index;
+    data_type::write_value_to_buffer<uint64_t>(
+        user_data_types[user_data_idx], data + user_data_offset[user_data_idx],
+        label * 255);
+  }
+}
+
 PointCloud::vertex_t PointCloud::vertex(size_t point_index) const {
   vertex_t vertex = read_value_from_buffer<vertex_t>(coordinate_color.data() +
                                                      point_index * stride);

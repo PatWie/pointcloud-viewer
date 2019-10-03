@@ -75,6 +75,8 @@ class PointCloud final {
   void clear();
   void resize(size_t num_points);
 
+  void set_label(size_t point_index, int label);
+
   void set_user_data_format(size_t user_data_stride,
                             QVector<QString> user_data_names,
                             QVector<size_t> user_data_offset,

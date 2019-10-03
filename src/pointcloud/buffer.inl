@@ -28,6 +28,29 @@ T read_value_from_buffer(base_type_t input_type, const uint8_t* input_buffer) {
   return T();
 }
 
+template <typename T>
+void write_value_to_buffer(base_type_t input_type, uint8_t* input_buffer,
+                           T value) {
+  switch (input_type) {
+    case BASE_TYPE::FLOAT32:
+      return ::write_value_to_buffer<float32_t>(input_buffer, value);
+    case BASE_TYPE::FLOAT64:
+      return ::write_value_to_buffer<float64_t>(input_buffer, value);
+    case BASE_TYPE::INT8:
+      return ::write_value_to_buffer<int8_t>(input_buffer, value);
+    case BASE_TYPE::INT16:
+      return ::write_value_to_buffer<int16_t>(input_buffer, value);
+    case BASE_TYPE::INT32:
+      return ::write_value_to_buffer<int32_t>(input_buffer, value);
+    case BASE_TYPE::UINT8:
+      return ::write_value_to_buffer<uint8_t>(input_buffer, value);
+    case BASE_TYPE::UINT16:
+      return ::write_value_to_buffer<uint16_t>(input_buffer, value);
+    case BASE_TYPE::UINT32:
+      return ::write_value_to_buffer<uint32_t>(input_buffer, value);
+  }
+}
+
 template <typename stream_t>
 size_t read_value_from_buffer_to_stream(stream_t& stream,
                                         base_type_t input_type,

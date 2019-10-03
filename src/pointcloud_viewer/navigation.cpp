@@ -324,12 +324,21 @@ void Navigation::set_mouse_pos(glm::ivec2 mouse_pos) {
 
 void Navigation::pick_point(const glm::ivec2 screenspace_pixel) {
   if (fps_mode) return;
-
   picked_point(screenspace_pixel);
+}
+
+void Navigation::annotate_point(const glm::ivec2 screenspace_pixel, int label) {
+  if (fps_mode) return;
+  annotated_point(screenspace_pixel, label);
 }
 
 void Navigation::Controller::pick_point(const glm::ivec2 screenspace_pixel) {
   navigation.pick_point(screenspace_pixel);
+}
+
+void Navigation::Controller::annotate_point(const glm::ivec2 screenspace_pixel,
+                                            int label) {
+  navigation.annotate_point(screenspace_pixel, label);
 }
 
 void Navigation::Controller::incr_base_movement_speed(int incr) {

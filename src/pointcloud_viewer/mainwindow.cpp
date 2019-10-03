@@ -20,6 +20,8 @@ MainWindow::MainWindow()
 
   connect(&viewport.navigation, &Navigation::picked_point, &pointCloudInspector,
           &PointCloudInspector::pick_point);
+  connect(&viewport.navigation, &Navigation::annotated_point, &pointCloudInspector,
+          &PointCloudInspector::annotate_point);
   connect(&viewport, &Viewport::pointSizeChanged, &pointCloudInspector,
           &PointCloudInspector::setPickRadius);
 

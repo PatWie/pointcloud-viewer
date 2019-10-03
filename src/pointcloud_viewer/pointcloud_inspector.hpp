@@ -35,6 +35,7 @@ class PointCloudInspector final : public QObject {
   void handle_new_point_cloud(QSharedPointer<PointCloud> point_cloud);
 
   void pick_point(glm::ivec2 pixel);
+  void annotate_point(glm::ivec2 pixel, int label);
   void update();
 
   void setPointSelectionHighlightRadius(double pointSelectionHighlightRadius);
@@ -62,6 +63,8 @@ class PointCloudInspector final : public QObject {
 
   KDTreeIndex::point_index_t _selected_point =
       KDTreeIndex::point_index_t::INVALID;
+
+  KDTreeIndex::point_index_t find_nearest_point(glm::ivec2 pixel);
 
  private slots:
   void setSelectedPoint(KDTreeIndex::point_index_t selected_point);

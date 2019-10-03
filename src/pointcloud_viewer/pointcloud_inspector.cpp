@@ -46,8 +46,13 @@ void PointCloudInspector::handle_new_point_cloud(
   this->point_cloud = point_cloud;
 }
 
-void PointCloudInspector::pick_point(glm::ivec2 pixel) {
-  if (!point_cloud) return;
+KDTreeIndex::point_index_t PointCloudInspector::find_nearest_point(
+    glm::ivec2 pixel) {
+  if (!point_cloud) {
+    std::cout << "no point cloud" << std::endl;
+
+    return KDTreeIndex::point_index_t::INVALID;
+  }
 
   if (!point_cloud->has_build_kdtree()) {
     QMessageBox msg_box(QMessageBox::Information, "No KD-Tree built",
@@ -59,7 +64,10 @@ void PointCloudInspector::pick_point(glm::ivec2 pixel) {
     if (msg_box.exec() == QMessageBox::Yes)
       ::build_kdtree(&viewport, this->point_cloud.data());
 
-    if (!point_cloud->has_build_kdtree()) return;
+    if (!point_cloud->has_build_kdtree()) {
+      std::cout << "no kdtree" << std::endl;
+      return KDTreeIndex::point_index_t::INVALID;
+    }
   }
 
   float pick_radius = glm::max(4.f, glm::ceil(m_pickRadius + 2.f));
@@ -80,10 +88,28 @@ void PointCloudInspector::pick_point(glm::ivec2 pixel) {
 
   viewport.visualization().set_picked_cone(cone);
 
-  KDTreeIndex::point_index_t point = point_cloud->kdtree_index.pick_point(
-      cone, point_cloud->coordinate_color.data(), PointCloud::stride);
+  KDTreeIndex::point_index_t nearest_point =
+      point_cloud->kdtree_index.pick_point(
+          cone, point_cloud->coordinate_color.data(), PointCloud::stride);
+  return nearest_point;
+}
 
-  setSelectedPoint(point);
+void PointCloudInspector::pick_point(glm::ivec2 pixel) {
+  KDTreeIndex::point_index_t nearest_point = find_nearest_point(pixel);
+  if (nearest_point != KDTreeIndex::point_index_t::INVALID) {
+    setSelectedPoint(nearest_point);
+  }
+}
+
+void PointCloudInspector::annotate_point(glm::ivec2 pixel, int label) {
+  KDTreeIndex::point_index_t nearest_point = find_nearest_point(pixel);
+
+  if (nearest_point != KDTreeIndex::point_index_t::INVALID) {
+    std::cout << "annotate " << (size_t)nearest_point << std::endl;
+    point_cloud->set_label((size_t)nearest_point, label);
+    viewport.update();
+    setSelectedPoint(nearest_point);
+  }
 }
 
 void PointCloudInspector::update() {
@@ -116,7 +142,7 @@ void PointCloudInspector::setPointSelectionHighlightRadius(
 
 void PointCloudInspector::setSelectedPoint(
     KDTreeIndex::point_index_t selected_point) {
-  if (_selected_point == selected_point) return;
+  // if (_selected_point == selected_point) return;
 
   _selected_point = selected_point;
 

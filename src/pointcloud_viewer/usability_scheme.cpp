@@ -13,6 +13,8 @@ enum class Mode_t {
   TRACKBALL_ROTATE,
   TRACKBALL_SHIFT,
   TRACKBALL_ZOOM,
+  ANNOTATE_0,
+  ANNOTATE_1,
 };
 
 class UsabilityScheme::Implementation::DummyScheme final
@@ -443,8 +445,7 @@ void UsabilityScheme::Implementation::BlenderScheme::wheelEvent(
 
 void UsabilityScheme::Implementation::BlenderScheme::mouseMoveEvent(
     glm::vec2 mouse_force, QMouseEvent* event) {
-  Q_UNUSED(event);
-
+  const glm::ivec2 screenspace_pixel = glm::ivec2(event->x(), event->y());
   switch (mode) {
     case Mode_t::TURNTABLE_ROTATE:
       navigation.turntable_rotate(mouse_force);
@@ -456,6 +457,14 @@ void UsabilityScheme::Implementation::BlenderScheme::mouseMoveEvent(
       navigation.turntable_zoom(mouse_force.y);
       break;
     case Mode_t::IDLE:
+      break;
+    case Mode_t::ANNOTATE_0:
+      std::cout << "ANNOTATE_0 " << screenspace_pixel << std::endl;
+      navigation.annotate_point(screenspace_pixel, 0);
+      break;
+    case Mode_t::ANNOTATE_1:
+      std::cout << "ANNOTATE_1 " << screenspace_pixel << std::endl;
+      navigation.annotate_point(screenspace_pixel, 1);
       break;
   }
 }
@@ -471,9 +480,16 @@ void UsabilityScheme::Implementation::BlenderScheme::mousePressEvent(
       else if (event->modifiers() == Qt::ControlModifier)
         enableMode(Mode_t::TURNTABLE_ZOOM);
     } else if (event->button() == Qt::RightButton) {
-      if (event->modifiers() == Qt::NoModifier) {
-        const glm::ivec2 screenspace_pixel = glm::ivec2(event->x(), event->y());
-
+      const glm::ivec2 screenspace_pixel = glm::ivec2(event->x(), event->y());
+      if (event->modifiers() == Qt::ShiftModifier) {
+        enableMode(Mode_t::ANNOTATE_1);
+        std::cout << "ANNOTATE_1 " << screenspace_pixel << std::endl;
+        navigation.annotate_point(screenspace_pixel, 1);
+      } else if (event->modifiers() == Qt::ControlModifier) {
+        enableMode(Mode_t::ANNOTATE_0);
+        std::cout << "ANNOTATE_0 " << screenspace_pixel << std::endl;
+        navigation.annotate_point(screenspace_pixel, 0);
+      } else if (event->modifiers() == Qt::NoModifier) {
         navigation.pick_point(screenspace_pixel);
       }
     }
@@ -486,6 +502,9 @@ void UsabilityScheme::Implementation::BlenderScheme::mouseReleaseEvent(
     disableMode(Mode_t::TURNTABLE_ROTATE);
     disableMode(Mode_t::TURNTABLE_SHIFT);
     disableMode(Mode_t::TURNTABLE_ZOOM);
+  } else if (event->button() == Qt::RightButton) {
+    disableMode(Mode_t::ANNOTATE_0);
+    disableMode(Mode_t::ANNOTATE_1);
   }
 }
 
@@ -601,6 +620,14 @@ void UsabilityScheme::Implementation::MeshLabScheme::mouseMoveEvent(
       break;
     case Mode_t::IDLE:
       break;
+    case Mode_t::ANNOTATE_0:
+      std::cout << "ANNOTATE_0 " << screenspace_pixel << std::endl;
+      navigation.annotate_point(screenspace_pixel, 0);
+      break;
+    case Mode_t::ANNOTATE_1:
+      std::cout << "ANNOTATE_1 " << screenspace_pixel << std::endl;
+      navigation.annotate_point(screenspace_pixel, 1);
+      break;
   }
 }
 
@@ -618,7 +645,17 @@ void UsabilityScheme::Implementation::MeshLabScheme::mousePressEvent(
         enableMode(Mode_t::TRACKBALL_SHIFT);
     } else if (event->button() == Qt::RightButton) {
       const glm::ivec2 screenspace_pixel = glm::ivec2(event->x(), event->y());
-      navigation.pick_point(screenspace_pixel);
+      if (event->modifiers() == Qt::ShiftModifier) {
+        enableMode(Mode_t::ANNOTATE_1);
+        std::cout << "ANNOTATE_1 " << screenspace_pixel << std::endl;
+        navigation.annotate_point(screenspace_pixel, 1);
+      } else if (event->modifiers() == Qt::ControlModifier) {
+        enableMode(Mode_t::ANNOTATE_0);
+        std::cout << "ANNOTATE_0 " << screenspace_pixel << std::endl;
+        navigation.annotate_point(screenspace_pixel, 0);
+      } else if (event->modifiers() == Qt::NoModifier) {
+        navigation.pick_point(screenspace_pixel);
+      }
     }
   }
 }
@@ -628,6 +665,11 @@ void UsabilityScheme::Implementation::MeshLabScheme::mouseReleaseEvent(
   if (mode == Mode_t::TRACKBALL_ROTATE || mode == Mode_t::TRACKBALL_ZOOM ||
       mode == Mode_t::TRACKBALL_SHIFT) {
     if (event->button() == Qt::LeftButton) disableMode(mode);
+  }
+
+  if (mode == Mode_t::ANNOTATE_0 || mode == Mode_t::ANNOTATE_1) {
+    disableMode(Mode_t::ANNOTATE_0);
+    disableMode(Mode_t::ANNOTATE_1);
   }
 }
 

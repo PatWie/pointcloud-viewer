@@ -29,6 +29,10 @@ struct base_type_of;
 template <typename T>
 T read_value_from_buffer(base_type_t input_type, const uint8_t* input_buffer);
 
+template <typename T>
+void write_value_to_buffer(base_type_t input_type, uint8_t* input_buffer,
+                           T value);
+
 template <typename stream_t>
 size_t read_value_from_buffer_to_stream(stream_t& stream,
                                         base_type_t input_type,

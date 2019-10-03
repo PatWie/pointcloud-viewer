@@ -60,6 +60,7 @@ class Navigation final : public QObject {
   void mouse_sensitivity_value_changed(int value);
 
   void picked_point(glm::ivec2 point);
+  void annotated_point(glm::ivec2 point, int label);
 
  private:
   enum distance_t {
@@ -117,6 +118,7 @@ class Navigation final : public QObject {
   void set_mouse_pos(glm::ivec2 mouse_pos);
 
   void pick_point(const glm::ivec2 screenspace_pixel);
+  void annotate_point(const glm::ivec2 screenspace_pixel, int label);
 };
 
 class Navigation::Controller final {
@@ -134,6 +136,7 @@ class Navigation::Controller final {
   Controller& operator=(Controller&&) = delete;
 
   void pick_point(const glm::ivec2 screenspace_pixel);
+  void annotate_point(const glm::ivec2 screenspace_pixel, int label);
 
   void incr_base_movement_speed(int incr);
   void tilt_camera(double factor);
